@@ -16,7 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
-val isDarkTheme = true
+
+const val ISDARKTHEME = true
 @Composable
 fun SettingsScreen() {
     Column(
@@ -34,11 +35,11 @@ fun SettingsScreen() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = if (isDarkTheme) stringResource(R.string.dark_theme)
+                text = if (ISDARKTHEME) stringResource(R.string.dark_theme)
                 else stringResource(R.string.light_theme)
             )
             Switch(
-                checked = isDarkTheme,
+                checked = ISDARKTHEME,
                 onCheckedChange = { enabled ->
                 }
             )

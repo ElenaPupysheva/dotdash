@@ -331,7 +331,10 @@ naming:
     active: true
     aliases: [ 'FunctionName' ]
     excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
-    functionPattern: '[a-z][a-zA-Z0-9]*'
+    functionPattern: '[a-z][A-Za-z0-9]*|[A-Z][A-Za-z0-9]*|(`.*`)'
+    ignoreAnnotated:
+      - Composable
+      - Preview
     excludeClassPattern: '$^'
   FunctionParameterNaming:
     active: true
@@ -668,7 +671,7 @@ style:
     maxJumpCount: 1
   MagicNumber:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts' ]
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**', '**/*.kts','**/ui/theme/Color.kt','**/ui/theme/Theme.kt' ]
     ignoreNumbers:
       - '-1'
       - '0'
