@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Точка и тире</string>
+    <string name="dark_theme">Темная тема</string>
+    <string name="light_theme">Светлая тема</string>
+    <string name="theme">Тема</string>
+    <string name="training">Упражнения</string>
+    <string name="statistic">Статистика</string>
+    <string name="dictionary">Словарь</string>
 </resources>
