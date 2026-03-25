@@ -1,0 +1,72 @@
+name: CI (Dev)
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17 + Gradle cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Android SDK (for lint/assemble)
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 33
+          build-tools: '33.0.0'
+
+      - run: chmod +x gradlew
+
+      # Статический анализ (без detektFormat)
+      - name: Detekt (all)
+        run: ./gradlew detektAll
+
+      - name: Unit tests (debug)
+        run: ./gradlew testDebugUnitTest
+
+      - name: Android Lint (debug)
+        run: ./gradlew lintDebug
+
+      - name: Assemble Debug
+        run: ./gradlew :app:assembleDebug
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: "**/reports/tests/**"
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: "**/lint-results*.html"
+
+      - name: Upload APK (debug)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk-debug
+          path: "**/outputs/apk/debug/*.apk"
