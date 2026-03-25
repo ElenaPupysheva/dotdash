@@ -38,8 +38,8 @@ jobs:
       - run: chmod +x gradlew
 
       # Статический анализ (без detektFormat)
-      - name: Detekt (all)
-        run: ./gradlew detektAll
+      - name: Detekt
+        run: ./gradlew detekt --stacktrace --warning-mode all
 
       - name: Unit tests (debug)
         run: ./gradlew testDebugUnitTest

@@ -32,8 +32,8 @@ jobs:
         run: chmod +x gradlew
 
       # Только общий анализ — без detektFormat
-      - name: Detekt (all)
-        run: ./gradlew detektAll
+      - name: Detekt
+        run: ./gradlew detekt --stacktrace --warning-mode all
 
       - name: Upload detekt reports
         if: always()
