@@ -1,0 +1,124 @@
+name: CI (Main)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: main-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detekt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17 + Gradle cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      # Только общий анализ — без detektFormat
+      - name: Detekt (all)
+        run: ./gradlew detektAll
+
+      - name: Upload detekt reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-report
+          path: |
+            **/reports/detekt/**
+            **/build/reports/detekt/**
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17 + Gradle cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: '34.0.0'
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Android Lint (debug + release)
+        run: ./gradlew lintDebug lintRelease
+
+      - name: Upload lint reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report
+          path: "**/lint-results*.html"
+
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17 + Gradle cache
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: '34.0.0'
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Assemble Debug (sanity)
+        run: ./gradlew :app:assembleDebug
+
+      - name: Clean & Assemble Release
+        run: ./gradlew clean :app:assembleRelease
+
+      - name: Lint Release
+        run: ./gradlew :app:lintRelease
+
+      - name: Unit tests (release)
+        run: ./gradlew :app:testReleaseUnitTest
+
+      - name: Bundle Release (AAB)
+        run: ./gradlew :app:bundleRelease
+
+      - name: Upload APK/AAB artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-main
+          path: |
+            **/outputs/apk/release/*.apk
+            **/outputs/bundle/release/*.aab
+            **/lint-results*.html
