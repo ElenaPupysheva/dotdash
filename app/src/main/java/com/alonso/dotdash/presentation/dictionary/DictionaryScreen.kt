@@ -30,54 +30,51 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
 import com.alonso.dotdash.core.ui.DictionaryCard
-import com.alonso.dotdash.data.local.DictionaryItemUi
-import com.alonso.dotdash.data.local.mockDictionaryItems
+import com.alonso.dotdash.domain.model.MorseAlphabet
 
 const val COLUMNSIZE = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DictionaryScreen() {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    windowInsets = androidx.compose.foundation.layout.WindowInsets(0),
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        titleContentColor = MaterialTheme.colorScheme.onBackground,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
-                        actionIconContentColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                    title = {
-                        Text(
-                            text = stringResource(R.string.dictionary),
-                            style = MaterialTheme.typography.titleLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.background,
-        ) { innerPadding ->
-            TabRowComponent(
-                tabs = listOf("Tab 1", "Tab 2"),
-                contentScreens = listOf(
-                    { DictionaryGrid(mockDictionaryItems) },
-                    { DictionaryGrid(mockDictionaryItems) }
+    val engItems = mockDictionaryItems.filter { it.alphabet == MorseAlphabet.ENG }
+    val rusItems = mockDictionaryItems.filter { it.alphabet == MorseAlphabet.RUS }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                windowInsets = androidx.compose.foundation.layout.WindowInsets(0),
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.onBackground,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground,
+                    actionIconContentColor = MaterialTheme.colorScheme.onBackground
                 ),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                containerColor = Color.Gray,
-                contentColor = Color.White,
-                indicatorColor = Color.DarkGray
+                title = {
+                    Text(
+                        text = stringResource(R.string.dictionary),
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             )
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+    ) { innerPadding ->
+        TabRowComponent(
+            tabs = listOf("Eng", "Rus"),
+            contentScreens = listOf(
+                { DictionaryGrid(engItems) },
+                { DictionaryGrid(rusItems) }
+            ),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            containerColor = Color.Gray,
+            contentColor = Color.White,
+            indicatorColor = Color.DarkGray
+        )
 
-        }
     }
 }
 
