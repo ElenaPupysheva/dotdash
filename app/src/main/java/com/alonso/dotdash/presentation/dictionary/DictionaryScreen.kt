@@ -30,15 +30,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
 import com.alonso.dotdash.core.ui.DictionaryCard
-import com.alonso.dotdash.domain.model.MorseAlphabet
+import com.alonso.dotdash.data.local.LocalMorseDataSource
+import com.alonso.dotdash.domain.model.MorseSymbol
 
 const val COLUMNSIZE = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DictionaryScreen() {
-    val engItems = mockDictionaryItems.filter { it.alphabet == MorseAlphabet.ENG }
-    val rusItems = mockDictionaryItems.filter { it.alphabet == MorseAlphabet.RUS }
+    val engItems = LocalMorseDataSource.englishSymbols
+    val rusItems = LocalMorseDataSource.russianSymbols
+    val digItems = LocalMorseDataSource.digitsSymbols
     Scaffold(
         topBar = {
             TopAppBar(
@@ -62,10 +64,11 @@ fun DictionaryScreen() {
         containerColor = MaterialTheme.colorScheme.background,
     ) { innerPadding ->
         TabRowComponent(
-            tabs = listOf("Eng", "Rus"),
+            tabs = listOf("Eng", "Rus", "Dig"),
             contentScreens = listOf(
                 { DictionaryGrid(engItems) },
-                { DictionaryGrid(rusItems) }
+                { DictionaryGrid(rusItems) },
+                { DictionaryGrid(digItems) }
             ),
             modifier = Modifier
                 .fillMaxSize()
@@ -79,7 +82,7 @@ fun DictionaryScreen() {
 }
 
 @Composable
-fun DictionaryGrid(dictionaryItems: List<DictionaryItemUi>) {
+fun DictionaryGrid(dictionaryItems: List<MorseSymbol>) {
     LazyVerticalGrid(
         modifier = Modifier
             .padding(16.dp),
