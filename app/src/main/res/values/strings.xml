@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">dotdash</string>
+    <string name="header">Dot Dash</string>
     <string name="light_theme">Light theme</string>
     <string name="theme">Theme</string>
     <string name="dark_theme">Dark theme</string>
