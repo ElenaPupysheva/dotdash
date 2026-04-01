@@ -18,7 +18,7 @@ val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = razerFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 64.sp,
+        fontSize = 36.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
