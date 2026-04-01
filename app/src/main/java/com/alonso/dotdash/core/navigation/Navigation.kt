@@ -18,7 +18,7 @@ fun Navigation() {
             HomeScreen(navController = navController)
         }
         composable(Screen.DictionaryScreen.route) {
-            DictionaryScreen()
+            DictionaryScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable(Screen.SettingsScreen.route) {

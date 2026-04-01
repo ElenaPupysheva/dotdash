@@ -8,7 +8,7 @@ import com.alonso.dotdash.R
 @Composable
 fun TrainingScreen() {
     Text(
-        text = stringResource(R.string.theme),
+        text = stringResource(R.string.training),
         style = MaterialTheme.typography.titleMedium
     )
 }
