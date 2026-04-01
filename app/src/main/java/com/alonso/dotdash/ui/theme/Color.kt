@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 // Цвета для светлой темы
 
-// Парные использованные цвета (не корректировать)
+// Парные использованные цвета
 val primaryLight = Color(0xFF65558F)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val onPrimaryContainerLight = Color(0xFF4F378B)
@@ -99,4 +99,4 @@ val CardBackground = Color(0XFFE0D9FF)
 val CardBigCircle = Color(0xFFD2F1E4)
 val CardSmallCircle = Color(0xFFFFD7B6)
 val CardTextDark = Color(0XFF222222)
-val lightPrimary = Color(0XFF65558F)
+val LightPrimary = Color(0XFF65558F)

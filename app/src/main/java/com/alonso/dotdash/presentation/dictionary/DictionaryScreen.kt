@@ -8,7 +8,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -32,12 +36,15 @@ import com.alonso.dotdash.R
 import com.alonso.dotdash.core.ui.DictionaryCard
 import com.alonso.dotdash.data.local.LocalMorseDataSource
 import com.alonso.dotdash.domain.model.MorseSymbol
+import com.alonso.dotdash.ui.theme.LightPrimary
 
 const val COLUMNSIZE = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DictionaryScreen() {
+fun DictionaryScreen(
+    onBackClick: () -> Unit
+) {
     val engItems = LocalMorseDataSource.englishSymbols
     val rusItems = LocalMorseDataSource.russianSymbols
     val digItems = LocalMorseDataSource.digitsSymbols
@@ -58,6 +65,14 @@ fun DictionaryScreen() {
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Localized description"
+                        )
+                    }
                 }
             )
         },
@@ -72,10 +87,7 @@ fun DictionaryScreen() {
             ),
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            containerColor = Color.Gray,
-            contentColor = Color.White,
-            indicatorColor = Color.DarkGray
+                .padding(innerPadding)
         )
 
     }
@@ -106,9 +118,9 @@ fun TabRowComponent(
     tabs: List<String>,
     contentScreens: List<@Composable () -> Unit>,
     modifier: Modifier = Modifier,
-    containerColor: Color = Color.Gray,
-    contentColor: Color = Color.White,
-    indicatorColor: Color = Color.DarkGray
+    containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    contentColor: Color = MaterialTheme.colorScheme.onBackground,
+    indicatorColor: Color = LightPrimary
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -130,7 +142,10 @@ fun TabRowComponent(
                     selected = selectedTabIndex == index,
                     onClick = { selectedTabIndex = index }
                 ) {
-                    Text(text = tabTitle)
+                    Text(
+                        text = tabTitle,
+                        style = MaterialTheme.typography.headlineMedium
+                    )
                 }
             }
         }
