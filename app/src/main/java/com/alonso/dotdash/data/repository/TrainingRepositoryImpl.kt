@@ -1,4 +1,4 @@
-package com.alonso.dotdash.data
+package com.alonso.dotdash.data.repository
 
 import com.alonso.dotdash.data.local.TrainingQuestion
 import com.alonso.dotdash.domain.repository.TrainingRepository
