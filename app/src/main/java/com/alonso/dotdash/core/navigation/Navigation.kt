@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.alonso.dotdash.data.local.TrainingQuestion
 import com.alonso.dotdash.presentation.dictionary.DictionaryScreen
 import com.alonso.dotdash.presentation.home.HomeScreen
 import com.alonso.dotdash.presentation.settings.SettingsScreen
@@ -30,7 +31,14 @@ fun Navigation() {
         }
 
         composable(Screen.TrainingScreen.route) {
-            TrainingScreen()
+            TrainingScreen(
+                onBackClick = { navController.popBackStack() },
+                question = TrainingQuestion(
+                    morseCode = ".-",
+                    correctAnswer = "A",
+                    options = listOf("A", "N", "M", "R")
+                ),
+            )
         }
     }
 }
