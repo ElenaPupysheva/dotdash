@@ -7,6 +7,7 @@
     <string name="dark_theme">Dark theme</string>
     <string name="training">Training</string>
     <string name="txt_training">Practice every day</string>
+    <string name="training_screen">What symbol is this morse code?</string>
     <string name="statistic">Statistic</string>
     <string name="dictionary">Dictionary</string>
     <string name="txt_statistic">Check your statistics</string>
