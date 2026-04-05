@@ -7,6 +7,7 @@ interface TrainingRepository {
     suspend fun selectAnswer(answer: String)
     suspend fun checkAnswer(): Boolean
     suspend fun nextQuestion(): TrainingQuestion
+    suspend fun hasNextQuestion(): Boolean
     suspend fun restartTraining()
     suspend fun endTraining()
 }

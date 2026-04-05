@@ -29,6 +29,9 @@ class TrainingRepositoryImpl : TrainingRepository {
         selectedAnswer = null
         return currentQuiz[currentQuizIndex]
     }
+    override suspend fun hasNextQuestion(): Boolean {
+        return currentQuizIndex < currentQuiz.size - 1
+    }
 
     override suspend fun restartTraining() {
         loadTraining()
