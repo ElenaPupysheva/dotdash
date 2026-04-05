@@ -2,29 +2,41 @@ package com.alonso.dotdash.data.repository
 
 import com.alonso.dotdash.data.local.TrainingQuestion
 import com.alonso.dotdash.domain.repository.TrainingRepository
+import com.alonso.dotdash.domain.usecase.createQuizQuestions
 
 class TrainingRepositoryImpl : TrainingRepository {
-    override suspend fun loadTraining(): TrainingQuestion {
-        TODO("Not yet implemented")
+    private var currentQuiz: MutableList<TrainingQuestion> = mutableListOf()
+    private var currentQuizIndex: Int = 0
+    private var selectedAnswer: String? = null
+
+    override suspend fun loadTraining(): MutableList<TrainingQuestion> {
+        currentQuiz = createQuizQuestions()
+        return currentQuiz
     }
 
-    override suspend fun selectAnswer() {
-        TODO("Not yet implemented")
+    override suspend fun selectAnswer(answer: String) {
+        selectedAnswer = answer
     }
 
-    override suspend fun checkAnswer() {
-        TODO("Not yet implemented")
+    override suspend fun checkAnswer(): Boolean {
+        val currentQ = currentQuiz[currentQuizIndex]
+        val isCorrect = currentQ.correctAnswer == selectedAnswer
+        return isCorrect
     }
 
     override suspend fun nextQuestion(): TrainingQuestion {
-        TODO("Not yet implemented")
+        currentQuizIndex++
+        selectedAnswer = null
+        return currentQuiz[currentQuizIndex]
     }
 
     override suspend fun restartTraining() {
-        TODO("Not yet implemented")
+        loadTraining()
     }
 
     override suspend fun endTraining() {
-        TODO("Not yet implemented")
+        currentQuiz.clear()
+        currentQuizIndex = 0
+        selectedAnswer = null
     }
 }
