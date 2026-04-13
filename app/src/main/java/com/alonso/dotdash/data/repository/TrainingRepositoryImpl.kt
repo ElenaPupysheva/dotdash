@@ -1,6 +1,6 @@
 package com.alonso.dotdash.data.repository
 
-import com.alonso.dotdash.data.local.TrainingQuestion
+import com.alonso.dotdash.domain.model.TrainingQuestion
 import com.alonso.dotdash.domain.repository.TrainingRepository
 import com.alonso.dotdash.domain.usecase.createQuizQuestions
 

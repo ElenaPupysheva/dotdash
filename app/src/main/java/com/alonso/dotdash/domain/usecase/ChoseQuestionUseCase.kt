@@ -1,7 +1,7 @@
 package com.alonso.dotdash.domain.usecase
 
 import com.alonso.dotdash.data.local.LocalMorseDataSource
-import com.alonso.dotdash.data.local.TrainingQuestion
+import com.alonso.dotdash.domain.model.TrainingQuestion
 
 const val QUIZSIZE = 10
 const val WRONGSIZE = 3

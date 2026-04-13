@@ -1,6 +1,6 @@
 package com.alonso.dotdash.presentation.training
 
-import com.alonso.dotdash.data.local.TrainingQuestion
+import com.alonso.dotdash.domain.model.TrainingQuestion
 
 data class TrainingState(
     val isLoading: Boolean,

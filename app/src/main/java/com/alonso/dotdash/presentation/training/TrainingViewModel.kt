@@ -2,7 +2,7 @@ package com.alonso.dotdash.presentation.training
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alonso.dotdash.data.local.TrainingQuestion
+import com.alonso.dotdash.domain.model.TrainingQuestion
 import com.alonso.dotdash.domain.repository.TrainingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +20,10 @@ class TrainingViewModel(
 
     private val _showResult = MutableStateFlow(false)
     val showResult = _showResult.asStateFlow()
+    private val _correctAnswersCount = MutableStateFlow(0)
+    val correctAnswersCount = _correctAnswersCount.asStateFlow()
+    private val _answeredQuestionsCount = MutableStateFlow(0)
+    val answeredQuestionsCount = _answeredQuestionsCount.asStateFlow()
 
     init {
         loadTraining()
@@ -31,16 +35,25 @@ class TrainingViewModel(
             _currentQuestion.value = questions.firstOrNull()
             _showResult.value = false
             _isAnswerCorrect.value = null
+            _correctAnswersCount.value = 0
+            _answeredQuestionsCount.value = 0
         }
     }
 
     fun onAnswerSelected(answer: String) {
+        if (_showResult.value) return
+
         viewModelScope.launch {
             repository.selectAnswer(answer)
 
             val isCorrect = repository.checkAnswer()
             _isAnswerCorrect.value = isCorrect
             _showResult.value = true
+            _answeredQuestionsCount.value += 1
+
+            if (isCorrect) {
+                _correctAnswersCount.value += 1
+            }
         }
     }
 

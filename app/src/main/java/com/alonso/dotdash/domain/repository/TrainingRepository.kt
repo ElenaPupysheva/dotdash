@@ -1,6 +1,6 @@
 package com.alonso.dotdash.domain.repository
 
-import com.alonso.dotdash.data.local.TrainingQuestion
+import com.alonso.dotdash.domain.model.TrainingQuestion
 
 interface TrainingRepository {
     suspend fun loadTraining(): MutableList<TrainingQuestion>

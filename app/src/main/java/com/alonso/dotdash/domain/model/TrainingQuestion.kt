@@ -1,4 +1,4 @@
-package com.alonso.dotdash.data.local
+package com.alonso.dotdash.domain.model
 
 data class TrainingQuestion(
     val morseCode: String,
