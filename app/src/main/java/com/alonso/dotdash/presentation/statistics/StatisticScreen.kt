@@ -15,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -24,8 +26,10 @@ import com.alonso.dotdash.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    viewModel: StatisticsViewModel
 ) {
+    val statistics by viewModel.statistics.collectAsState()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -64,15 +68,24 @@ fun StatisticScreen(
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
-                text = stringResource(R.string.total_statistic),
+                text = stringResource(
+                    R.string.total_statistic,
+                    statistics.totalCorrectAnswers
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = stringResource(R.string.wright_statistic),
+                text = stringResource(
+                    R.string.right_statistic,
+                    statistics.totalCorrectAnswers
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
-                text = stringResource(R.string.percent_statistic),
+                text = stringResource(
+                    R.string.percent_statistic,
+                    statistics.accuracyPercent
+                ),
                 style = MaterialTheme.typography.titleMedium
             )
         }
