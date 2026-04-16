@@ -11,7 +11,6 @@ import kotlinx.coroutines.launch
 class TrainingViewModel(
     private val repository: TrainingRepository
 ) : ViewModel() {
-
     private val _currentQuestion = MutableStateFlow<TrainingQuestion?>(null)
     val currentQuestion = _currentQuestion.asStateFlow()
 
@@ -23,7 +22,8 @@ class TrainingViewModel(
     private val _correctAnswersCount = MutableStateFlow(0)
     val correctAnswersCount = _correctAnswersCount.asStateFlow()
     private val _answeredQuestionsCount = MutableStateFlow(0)
-    val answeredQuestionsCount = _answeredQuestionsCount.asStateFlow()
+    private val _selectedAnswer = MutableStateFlow<String?>(null)
+    val selectedAnswer = _selectedAnswer.asStateFlow()
 
     init {
         loadTraining()
@@ -50,7 +50,7 @@ class TrainingViewModel(
             _isAnswerCorrect.value = isCorrect
             _showResult.value = true
             _answeredQuestionsCount.value += 1
-
+            _selectedAnswer.value = answer
             if (isCorrect) {
                 _correctAnswersCount.value += 1
             }

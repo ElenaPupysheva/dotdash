@@ -1,8 +1,11 @@
 package com.alonso.dotdash.presentation.training
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -26,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
 import com.alonso.dotdash.core.ui.QuizButton
 import com.alonso.dotdash.core.ui.TrainingCard
+import com.alonso.dotdash.ui.theme.SuccessGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,9 +40,8 @@ fun TrainingScreen(
     val currentQuestion by viewModel.currentQuestion.collectAsState()
     val isAnswerCorrect by viewModel.isAnswerCorrect.collectAsState()
     val showResult by viewModel.showResult.collectAsState()
-
+    val selectedAnswer by viewModel.selectedAnswer.collectAsState()
     val correctAnswersCount by viewModel.correctAnswersCount.collectAsState()
-    val answeredQuestionsCount by viewModel.answeredQuestionsCount.collectAsState()
 
     Scaffold(
         topBar = {
@@ -87,12 +90,27 @@ fun TrainingScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                question.options.forEach { option ->
-                    QuizButton(
-                        symbol = option,
-                        onClick = { viewModel.onAnswerSelected(option) }
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    question.options.forEach { option ->
+                        val isCorrectSelectedButton =
+                            showResult && isAnswerCorrect == true && selectedAnswer == option
+
+                        QuizButton(
+                            symbol = option,
+                            onClick = { viewModel.onAnswerSelected(option) },
+                            enabled = !showResult,
+                            containerColor = if (isCorrectSelectedButton) {
+                                SuccessGreen
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            }
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
                 if (showResult) {
                     Text(
