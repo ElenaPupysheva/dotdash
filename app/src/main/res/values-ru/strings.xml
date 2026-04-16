@@ -14,4 +14,7 @@
     <string name="txt_dictionary">Найди нужный символ</string>
     <string name="settings">Настройки</string>
     <string name="txt_settings">Управляй приложением</string>
+    <string name="total_statistic">Пройденных тренировок: </string>
+    <string name="wright_statistic">Верных ответов: </string>
+    <string name="percent_statistic">Точность: </string>
 </resources>

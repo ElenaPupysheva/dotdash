@@ -31,7 +31,7 @@ fun Navigation() {
         }
 
         composable(Screen.StatisticScreen.route) {
-            StatisticScreen()
+            StatisticScreen(onBackClick = { navController.popBackStack() })
         }
 
         composable(Screen.TrainingScreen.route) {
