@@ -7,6 +7,7 @@
     <string name="theme">Тема</string>
     <string name="training">Упражнения</string>
     <string name="txt_training">Практикуйся каждый день</string>
+    <string name="training_screen">Какой букве соответствует этот код?</string>
     <string name="statistic">Статистика</string>
     <string name="txt_statistic">Проверь статистику</string>
     <string name="dictionary">Словарь</string>
