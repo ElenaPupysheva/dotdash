@@ -27,7 +27,6 @@ import androidx.navigation.NavController
 import com.alonso.dotdash.R
 import com.alonso.dotdash.core.navigation.Screen
 import com.alonso.dotdash.core.ui.HomeFab
-import com.alonso.dotdash.ui.theme.PinPadBackgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +36,6 @@ fun HomeScreen(navController: NavController) {
             TopAppBar(
                 windowInsets = androidx.compose.foundation.layout.WindowInsets(0),
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = PinPadBackgroundColor,
                     titleContentColor = MaterialTheme.colorScheme.onBackground,
                     actionIconContentColor = MaterialTheme.colorScheme.onBackground
                 ),
