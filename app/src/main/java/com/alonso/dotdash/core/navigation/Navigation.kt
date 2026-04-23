@@ -2,10 +2,12 @@ package com.alonso.dotdash.core.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.alonso.dotdash.data.local.StatisticsDataStore
 import com.alonso.dotdash.data.repository.StatisticsRepositoryImpl
 import com.alonso.dotdash.data.repository.TrainingRepositoryImpl
 import com.alonso.dotdash.presentation.dictionary.DictionaryScreen
@@ -21,8 +23,15 @@ import com.alonso.dotdash.presentation.training.TrainingViewModelFactory
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
+    val appContext = LocalContext.current.applicationContext
 
-    val statisticsRepository = remember { StatisticsRepositoryImpl() }
+    val statisticsDataStore = remember(appContext) {
+        StatisticsDataStore(appContext)
+    }
+    val statisticsRepository = remember(statisticsDataStore) {
+        StatisticsRepositoryImpl(statisticsDataStore)
+    }
+
     val trainingRepository = remember { TrainingRepositoryImpl() }
 
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route) {
