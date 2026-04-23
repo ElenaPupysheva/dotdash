@@ -3,13 +3,15 @@ package com.alonso.dotdash.presentation.training
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alonso.dotdash.domain.model.TrainingQuestion
+import com.alonso.dotdash.domain.repository.StatisticsRepository
 import com.alonso.dotdash.domain.repository.TrainingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class TrainingViewModel(
-    private val repository: TrainingRepository
+    private val repository: TrainingRepository,
+    private val statisticsRepository: StatisticsRepository
 ) : ViewModel() {
     private val _currentQuestion = MutableStateFlow<TrainingQuestion?>(null)
     val currentQuestion = _currentQuestion.asStateFlow()
@@ -22,8 +24,10 @@ class TrainingViewModel(
     private val _correctAnswersCount = MutableStateFlow(0)
     val correctAnswersCount = _correctAnswersCount.asStateFlow()
     private val _answeredQuestionsCount = MutableStateFlow(0)
+    val answeredQuestionsCount = _answeredQuestionsCount.asStateFlow()
     private val _selectedAnswer = MutableStateFlow<String?>(null)
     val selectedAnswer = _selectedAnswer.asStateFlow()
+
 
     init {
         loadTraining()
@@ -64,6 +68,7 @@ class TrainingViewModel(
                 _currentQuestion.value = next
                 _showResult.value = false
                 _isAnswerCorrect.value = null
+                _selectedAnswer.value = null
             } else {
                 endTraining()
             }
@@ -76,9 +81,16 @@ class TrainingViewModel(
 
     private fun endTraining() {
         viewModelScope.launch {
+            statisticsRepository.updateStatistics(
+                correctAnswers = _correctAnswersCount.value,
+                answeredQuestions = _answeredQuestionsCount.value
+            )
             repository.endTraining()
             _currentQuestion.value = null
             _showResult.value = false
+            _isAnswerCorrect.value = null
+            _selectedAnswer.value = null
         }
     }
 }
+
