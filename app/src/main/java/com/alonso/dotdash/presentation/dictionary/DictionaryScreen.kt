@@ -23,8 +23,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -33,12 +35,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
+import com.alonso.dotdash.core.common.MorsePlayer
+import com.alonso.dotdash.core.common.ToneBeepPlayer
 import com.alonso.dotdash.core.ui.DictionaryCard
 import com.alonso.dotdash.data.local.LocalMorseDataSource
 import com.alonso.dotdash.domain.model.MorseSymbol
 import com.alonso.dotdash.ui.theme.LightPrimary
 
-const val COLUMNSIZE = 3
+private const val COLUMN_SIZE = 3
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,6 +52,33 @@ fun DictionaryScreen(
     val engItems = LocalMorseDataSource.englishSymbols
     val rusItems = LocalMorseDataSource.russianSymbols
     val digItems = LocalMorseDataSource.digitsSymbols
+
+    val soundPlayer = remember { ToneBeepPlayer() }
+    val morsePlayer = remember { MorsePlayer(soundPlayer) }
+    var playingItemId by remember { mutableStateOf<String?>(null) }
+
+    fun handlePlayClick(item: MorseSymbol) {
+        if (playingItemId == item.id) {
+            morsePlayer.stop()
+            playingItemId = null
+        } else {
+            morsePlayer.stop()
+            playingItemId = item.id
+            morsePlayer.play(item.morseCode) {
+                if (playingItemId == item.id) {
+                    playingItemId = null
+                }
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            morsePlayer.stop()
+            morsePlayer.release()
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -63,14 +94,14 @@ fun DictionaryScreen(
                         text = stringResource(R.string.dictionary),
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -80,25 +111,49 @@ fun DictionaryScreen(
     ) { innerPadding ->
         TabRowComponent(
             tabs = listOf("Eng", "Rus", "Dig"),
+            onTabSelected = {
+                morsePlayer.stop()
+                playingItemId = null
+            },
             contentScreens = listOf(
-                { DictionaryGrid(engItems) },
-                { DictionaryGrid(rusItems) },
-                { DictionaryGrid(digItems) }
+                {
+                    DictionaryGrid(
+                        dictionaryItems = engItems,
+                        playingItemId = playingItemId,
+                        onPlayClick = ::handlePlayClick
+                    )
+                },
+                {
+                    DictionaryGrid(
+                        dictionaryItems = rusItems,
+                        playingItemId = playingItemId,
+                        onPlayClick = ::handlePlayClick
+                    )
+                },
+                {
+                    DictionaryGrid(
+                        dictionaryItems = digItems,
+                        playingItemId = playingItemId,
+                        onPlayClick = ::handlePlayClick
+                    )
+                }
             ),
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         )
-
     }
 }
 
 @Composable
-fun DictionaryGrid(dictionaryItems: List<MorseSymbol>) {
+fun DictionaryGrid(
+    dictionaryItems: List<MorseSymbol>,
+    playingItemId: String?,
+    onPlayClick: (MorseSymbol) -> Unit
+) {
     LazyVerticalGrid(
-        modifier = Modifier
-            .padding(16.dp),
-        columns = GridCells.Fixed(COLUMNSIZE),
+        modifier = Modifier.padding(16.dp),
+        columns = GridCells.Fixed(COLUMN_SIZE),
         contentPadding = PaddingValues(bottom = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -107,7 +162,8 @@ fun DictionaryGrid(dictionaryItems: List<MorseSymbol>) {
             DictionaryCard(
                 symbol = item.symbol,
                 morseCode = item.morseCode,
-                onPlayClick = {}
+                isPlaying = playingItemId == item.id,
+                onPlayClick = { onPlayClick(item) }
             )
         }
     }
@@ -120,7 +176,8 @@ fun TabRowComponent(
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.primaryContainer,
     contentColor: Color = MaterialTheme.colorScheme.onBackground,
-    indicatorColor: Color = LightPrimary
+    indicatorColor: Color = LightPrimary,
+    onTabSelected: (Int) -> Unit = {}
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -138,9 +195,12 @@ fun TabRowComponent(
         ) {
             tabs.forEachIndexed { index, tabTitle ->
                 Tab(
-                    modifier = Modifier.padding(all = 16.dp),
+                    modifier = Modifier.padding(16.dp),
                     selected = selectedTabIndex == index,
-                    onClick = { selectedTabIndex = index }
+                    onClick = {
+                        selectedTabIndex = index
+                        onTabSelected(index)
+                    }
                 ) {
                     Text(
                         text = tabTitle,
@@ -149,6 +209,7 @@ fun TabRowComponent(
                 }
             }
         }
+
         contentScreens.getOrNull(selectedTabIndex)?.invoke()
     }
 }

@@ -15,15 +15,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
 
@@ -31,11 +26,10 @@ import com.alonso.dotdash.R
 fun DictionaryCard(
     symbol: String,
     morseCode: String,
+    isPlaying: Boolean,
     onPlayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var isToggled by remember { mutableStateOf(false) }
-
     ElevatedCard(
         shape = RoundedCornerShape(20.dp),
         elevation = CardDefaults.cardElevation(
@@ -70,19 +64,16 @@ fun DictionaryCard(
             Spacer(modifier = Modifier.height(4.dp))
 
             IconButton(
-                onClick = {
-                    isToggled = !isToggled
-                    onPlayClick()
-                },
+                onClick = onPlayClick,
                 modifier = Modifier.size(40.dp)
             ) {
                 Icon(
                     painter = painterResource(
-                        if (isToggled) R.drawable.pause
+                        if (isPlaying) R.drawable.pause
                         else R.drawable.play_arrow_filled
                     ),
                     modifier = Modifier.size(24.dp),
-                    contentDescription = if (isToggled) {
+                    contentDescription = if (isPlaying) {
                         "Pause morse sound"
                     } else {
                         "Play morse sound"
@@ -91,14 +82,4 @@ fun DictionaryCard(
             }
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DictionaryCardPreview() {
-    DictionaryCard(
-        symbol = "B",
-        morseCode = "-...",
-        onPlayClick = {}
-    )
 }
