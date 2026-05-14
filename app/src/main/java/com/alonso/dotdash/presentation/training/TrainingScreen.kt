@@ -149,5 +149,4 @@ fun TrainingScreen(
         }
 
     }
-
 }

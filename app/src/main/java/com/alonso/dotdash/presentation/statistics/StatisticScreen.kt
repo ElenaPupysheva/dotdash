@@ -72,21 +72,21 @@ fun StatisticScreen(
                     R.string.total_statistic,
                     statistics.totalCorrectAnswers
                 ),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleLarge
             )
             Text(
                 text = stringResource(
                     R.string.right_statistic,
                     statistics.totalCorrectAnswers
                 ),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleLarge
             )
             Text(
                 text = stringResource(
                     R.string.percent_statistic,
                     statistics.accuracyPercent
                 ),
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleLarge
             )
         }
     }

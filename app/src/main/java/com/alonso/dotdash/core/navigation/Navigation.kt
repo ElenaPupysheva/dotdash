@@ -21,7 +21,10 @@ import com.alonso.dotdash.presentation.training.TrainingViewModel
 import com.alonso.dotdash.presentation.training.TrainingViewModelFactory
 
 @Composable
-fun Navigation() {
+fun Navigation(
+    isDarkTheme: Boolean,
+    onThemeChange: (Boolean) -> Unit
+) {
     val navController = rememberNavController()
     val appContext = LocalContext.current.applicationContext
 
@@ -31,7 +34,6 @@ fun Navigation() {
     val statisticsRepository = remember(statisticsDataStore) {
         StatisticsRepositoryImpl(statisticsDataStore)
     }
-
     val trainingRepository = remember { TrainingRepositoryImpl() }
 
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route) {
@@ -44,7 +46,11 @@ fun Navigation() {
         }
 
         composable(Screen.SettingsScreen.route) {
-            SettingsScreen()
+            SettingsScreen(
+                onBackClick = { navController.popBackStack() },
+                isDarkTheme = isDarkTheme,
+                onThemeChange = onThemeChange
+            )
         }
 
         composable(Screen.StatisticScreen.route) {
