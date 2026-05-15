@@ -13,6 +13,7 @@ class TrainingViewModel(
     private val repository: TrainingRepository,
     private val statisticsRepository: StatisticsRepository
 ) : ViewModel() {
+
     private val _currentQuestion = MutableStateFlow<TrainingQuestion?>(null)
     val currentQuestion = _currentQuestion.asStateFlow()
 
@@ -21,13 +22,15 @@ class TrainingViewModel(
 
     private val _showResult = MutableStateFlow(false)
     val showResult = _showResult.asStateFlow()
+
     private val _correctAnswersCount = MutableStateFlow(0)
     val correctAnswersCount = _correctAnswersCount.asStateFlow()
+
     private val _answeredQuestionsCount = MutableStateFlow(0)
     val answeredQuestionsCount = _answeredQuestionsCount.asStateFlow()
+
     private val _selectedAnswer = MutableStateFlow<String?>(null)
     val selectedAnswer = _selectedAnswer.asStateFlow()
-
 
     init {
         loadTraining()
@@ -41,6 +44,7 @@ class TrainingViewModel(
             _isAnswerCorrect.value = null
             _correctAnswersCount.value = 0
             _answeredQuestionsCount.value = 0
+            _selectedAnswer.value = null
         }
     }
 
@@ -55,6 +59,7 @@ class TrainingViewModel(
             _showResult.value = true
             _answeredQuestionsCount.value += 1
             _selectedAnswer.value = answer
+
             if (isCorrect) {
                 _correctAnswersCount.value += 1
             }
@@ -79,18 +84,15 @@ class TrainingViewModel(
         loadTraining()
     }
 
-    private fun endTraining() {
-        viewModelScope.launch {
-            statisticsRepository.updateStatistics(
-                correctAnswers = _correctAnswersCount.value,
-                answeredQuestions = _answeredQuestionsCount.value
-            )
-            repository.endTraining()
-            _currentQuestion.value = null
-            _showResult.value = false
-            _isAnswerCorrect.value = null
-            _selectedAnswer.value = null
-        }
+    private suspend fun endTraining() {
+        statisticsRepository.updateStatistics(
+            correctAnswers = _correctAnswersCount.value,
+            answeredQuestions = _answeredQuestionsCount.value
+        )
+        repository.endTraining()
+        _currentQuestion.value = null
+        _showResult.value = false
+        _isAnswerCorrect.value = null
+        _selectedAnswer.value = null
     }
 }
-
