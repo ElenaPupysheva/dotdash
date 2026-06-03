@@ -1,5 +1,6 @@
 package com.alonso.dotdash.presentation.training
 
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alonso.dotdash.domain.model.TrainingQuestion
@@ -32,6 +33,9 @@ class TrainingViewModel(
     private val _selectedAnswer = MutableStateFlow<String?>(null)
     val selectedAnswer = _selectedAnswer.asStateFlow()
 
+    private var sessionStartTimeMillis: Long = 0L
+    private val sessionCorrectSymbols = mutableSetOf<String>()
+
     init {
         loadTraining()
     }
@@ -45,6 +49,9 @@ class TrainingViewModel(
             _correctAnswersCount.value = 0
             _answeredQuestionsCount.value = 0
             _selectedAnswer.value = null
+
+            sessionStartTimeMillis = SystemClock.elapsedRealtime()
+            sessionCorrectSymbols.clear()
         }
     }
 
@@ -62,6 +69,9 @@ class TrainingViewModel(
 
             if (isCorrect) {
                 _correctAnswersCount.value += 1
+                _currentQuestion.value?.correctAnswer?.let { correctSymbol ->
+                    sessionCorrectSymbols.add(correctSymbol)
+                }
             }
         }
     }
@@ -85,10 +95,15 @@ class TrainingViewModel(
     }
 
     private suspend fun endTraining() {
+        val trainingTimeMillis = SystemClock.elapsedRealtime() - sessionStartTimeMillis
+
         statisticsRepository.updateStatistics(
             correctAnswers = _correctAnswersCount.value,
-            answeredQuestions = _answeredQuestionsCount.value
+            answeredQuestions = _answeredQuestionsCount.value,
+            trainingTimeMillis = trainingTimeMillis,
+            correctSymbols = sessionCorrectSymbols.toSet()
         )
+
         repository.endTraining()
         _currentQuestion.value = null
         _showResult.value = false

@@ -29,6 +29,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,7 +59,12 @@ private data class HomeStatUi(
 )
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    viewModel: HomeViewModel
+) {
+    val statistics by viewModel.statistics.collectAsState()
+
     val menuItems = listOf(
         HomeMenuItemUi(
             title = "Упражнения",
@@ -93,10 +100,18 @@ fun HomeScreen(navController: NavController) {
         )
     )
 
+    val progressText = "${statistics.todayCorrectAnswers} / ${statistics.dailyGoal} знаков"
+    val progressValue = if (statistics.dailyGoal == 0) {
+        0f
+    } else {
+        (statistics.todayCorrectAnswers.toFloat() / statistics.dailyGoal.toFloat())
+            .coerceIn(0f, 1f)
+    }
+
     val stats = listOf(
-        HomeStatUi("47", "выучено"),
-        HomeStatUi("92%", "точность"),
-        HomeStatUi("12м", "сегодня")
+        HomeStatUi(statistics.learnedSymbolsCount.toString(), "выучено"),
+        HomeStatUi("${statistics.accuracyPercent}%", "точность"),
+        HomeStatUi("${statistics.todayTrainingMinutes}м", "сегодня")
     )
 
     Scaffold(
@@ -118,8 +133,8 @@ fun HomeScreen(navController: NavController) {
 
             HomeHeroCard(
                 title = "Цель на сегодня",
-                progressText = "14 / 20 знаков",
-                progress = 0.7f,
+                progressText = progressText,
+                progress = progressValue,
                 buttonText = "Продолжить",
                 onClick = { navController.navigate(Screen.TrainingScreen.route) }
             )

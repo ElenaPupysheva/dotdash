@@ -17,11 +17,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Vibration
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
@@ -36,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -54,9 +57,11 @@ import com.alonso.dotdash.core.common.openSupportLink
 fun SettingsScreen(
     onBackClick: () -> Unit,
     isDarkTheme: Boolean,
-    onThemeChange: (Boolean) -> Unit
+    onThemeChange: (Boolean) -> Unit,
+    viewModel: SettingsViewModel
 ) {
     val context = LocalContext.current
+    val statistics by viewModel.statistics.collectAsState()
 
     var isSoundEnabled by rememberSaveable { mutableStateOf(true) }
     var isVibrationEnabled by rememberSaveable { mutableStateOf(true) }
@@ -120,7 +125,7 @@ fun SettingsScreen(
                 SettingsSwitchRow(
                     title = "Звук",
                     subtitle = "Воспроизводить код",
-                    icon = Icons.Filled.VolumeUp,
+                    icon = Icons.AutoMirrored.Filled.VolumeUp,
                     checked = isSoundEnabled,
                     onCheckedChange = { isSoundEnabled = it }
                 )
@@ -133,11 +138,13 @@ fun SettingsScreen(
                     onCheckedChange = { isVibrationEnabled = it }
                 )
                 SettingsDivider()
-                SettingsNavigationRow(
+                SettingsGoalRow(
                     title = "Дневная цель",
-                    subtitle = "20 знаков",
+                    subtitle = "Количество знаков в день",
                     icon = Icons.Filled.Favorite,
-                    onClick = { }
+                    goal = statistics.dailyGoal,
+                    onDecrease = { viewModel.updateDailyGoal(statistics.dailyGoal - 1) },
+                    onIncrease = { viewModel.updateDailyGoal(statistics.dailyGoal + 1) }
                 )
             }
 
@@ -244,16 +251,17 @@ private fun SettingsSwitchRow(
 }
 
 @Composable
-private fun SettingsNavigationRow(
+private fun SettingsGoalRow(
     title: String,
     subtitle: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    onClick: () -> Unit
+    goal: Int,
+    onDecrease: () -> Unit,
+    onIncrease: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -279,12 +287,30 @@ private fun SettingsNavigationRow(
             )
         }
 
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowForwardIos,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(16.dp)
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(onClick = onDecrease) {
+                Icon(
+                    imageVector = Icons.Filled.Remove,
+                    contentDescription = "Уменьшить"
+                )
+            }
+
+            Text(
+                text = goal.toString(),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(horizontal = 6.dp)
+            )
+
+            IconButton(onClick = onIncrease) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Увеличить"
+                )
+            }
+        }
     }
 }
 
