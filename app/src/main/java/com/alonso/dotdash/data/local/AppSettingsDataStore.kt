@@ -13,12 +13,10 @@ private val Context.appSettingsDataStore: DataStore<Preferences> by preferencesD
     name = "app_settings"
 )
 
-private val SOUND_ENABLED = booleanPreferencesKey("soundEnabled")
 private val VIBRATION_ENABLED = booleanPreferencesKey("vibrationEnabled")
 private val TRAINING_REMINDER_ENABLED = booleanPreferencesKey("trainingReminderEnabled")
 
 data class AppSettings(
-    val soundEnabled: Boolean = true,
     val vibrationEnabled: Boolean = true,
     val trainingReminderEnabled: Boolean = false
 )
@@ -28,16 +26,9 @@ class AppSettingsDataStore(
 ) {
     val settingsFlow: Flow<AppSettings> = context.appSettingsDataStore.data.map { preferences ->
         AppSettings(
-            soundEnabled = preferences[SOUND_ENABLED] ?: true,
             vibrationEnabled = preferences[VIBRATION_ENABLED] ?: true,
             trainingReminderEnabled = preferences[TRAINING_REMINDER_ENABLED] ?: false
         )
-    }
-
-    suspend fun setSoundEnabled(enabled: Boolean) {
-        context.appSettingsDataStore.edit { preferences ->
-            preferences[SOUND_ENABLED] = enabled
-        }
     }
 
     suspend fun setVibrationEnabled(enabled: Boolean) {

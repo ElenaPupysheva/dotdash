@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Notifications
@@ -40,9 +39,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -63,9 +59,7 @@ fun SettingsScreen(
     val context = LocalContext.current
     val statistics by viewModel.statistics.collectAsState()
 
-    var isSoundEnabled by rememberSaveable { mutableStateOf(true) }
-    var isVibrationEnabled by rememberSaveable { mutableStateOf(true) }
-    var isTrainingReminderEnabled by rememberSaveable { mutableStateOf(false) }
+    val appSettings by viewModel.appSettings.collectAsState()
 
     Scaffold(
         topBar = {
@@ -123,19 +117,11 @@ fun SettingsScreen(
             SettingsSectionTitle(title = "Обучение")
             SettingsGroupCard {
                 SettingsSwitchRow(
-                    title = "Звук",
-                    subtitle = "Воспроизводить код",
-                    icon = Icons.AutoMirrored.Filled.VolumeUp,
-                    checked = isSoundEnabled,
-                    onCheckedChange = { isSoundEnabled = it }
-                )
-                SettingsDivider()
-                SettingsSwitchRow(
                     title = "Вибрация",
                     subtitle = "При ответе",
                     icon = Icons.Filled.Vibration,
-                    checked = isVibrationEnabled,
-                    onCheckedChange = { isVibrationEnabled = it }
+                    checked = appSettings.vibrationEnabled,
+                    onCheckedChange = viewModel::updateVibrationEnabled
                 )
                 SettingsDivider()
                 SettingsGoalRow(
@@ -156,8 +142,8 @@ fun SettingsScreen(
                     title = "Напоминания о тренировке",
                     subtitle = "Каждый день в 19:00",
                     icon = Icons.Filled.Notifications,
-                    checked = isTrainingReminderEnabled,
-                    onCheckedChange = { isTrainingReminderEnabled = it }
+                    checked = appSettings.trainingReminderEnabled,
+                    onCheckedChange = viewModel::updateTrainingReminderEnabled
                 )
             }
 

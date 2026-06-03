@@ -3,16 +3,22 @@ package com.alonso.dotdash.presentation.training
 import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alonso.dotdash.data.local.AppSettings
 import com.alonso.dotdash.domain.model.TrainingQuestion
+import com.alonso.dotdash.domain.repository.AppSettingsRepository
 import com.alonso.dotdash.domain.repository.StatisticsRepository
 import com.alonso.dotdash.domain.repository.TrainingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+private const val MILLIS = 5000L
 class TrainingViewModel(
     private val repository: TrainingRepository,
-    private val statisticsRepository: StatisticsRepository
+    private val statisticsRepository: StatisticsRepository,
+    appSettingsRepository: AppSettingsRepository
 ) : ViewModel() {
 
     private val _currentQuestion = MutableStateFlow<TrainingQuestion?>(null)
@@ -32,6 +38,12 @@ class TrainingViewModel(
 
     private val _selectedAnswer = MutableStateFlow<String?>(null)
     val selectedAnswer = _selectedAnswer.asStateFlow()
+
+    val appSettings = appSettingsRepository.getSettings().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(MILLIS),
+        initialValue = AppSettings()
+    )
 
     private var sessionStartTimeMillis: Long = 0L
     private val sessionCorrectSymbols = mutableSetOf<String>()

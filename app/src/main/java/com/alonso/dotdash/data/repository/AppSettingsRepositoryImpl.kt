@@ -13,10 +13,6 @@ class AppSettingsRepositoryImpl(
         return dataStore.settingsFlow
     }
 
-    override suspend fun setSoundEnabled(enabled: Boolean) {
-        dataStore.setSoundEnabled(enabled)
-    }
-
     override suspend fun setVibrationEnabled(enabled: Boolean) {
         dataStore.setVibrationEnabled(enabled)
     }

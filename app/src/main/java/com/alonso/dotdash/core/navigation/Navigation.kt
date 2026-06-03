@@ -65,7 +65,12 @@ fun Navigation(
         }
 
         composable(Screen.SettingsScreen.route) {
-            val factory = remember { SettingsViewModelFactory(statisticsRepository) }
+            val factory = remember {
+                SettingsViewModelFactory(
+                    statisticsRepository = statisticsRepository,
+                    appSettingsRepository = appSettingsRepository
+                )
+            }
             val settingsViewModel: SettingsViewModel = viewModel(factory = factory)
 
             SettingsScreen(
@@ -90,7 +95,8 @@ fun Navigation(
             val factory = remember {
                 TrainingViewModelFactory(
                     repository = trainingRepository,
-                    statisticsRepository = statisticsRepository
+                    statisticsRepository = statisticsRepository,
+                    appSettingsRepository = appSettingsRepository
                 )
             }
             val trainingViewModel: TrainingViewModel = viewModel(factory = factory)

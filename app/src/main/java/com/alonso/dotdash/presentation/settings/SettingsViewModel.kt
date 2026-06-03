@@ -48,12 +48,6 @@ class SettingsViewModel(
         }
     }
 
-    fun updateSoundEnabled(enabled: Boolean) {
-        viewModelScope.launch {
-            appSettingsRepository.setSoundEnabled(enabled)
-        }
-    }
-
     fun updateVibrationEnabled(enabled: Boolean) {
         viewModelScope.launch {
             appSettingsRepository.setVibrationEnabled(enabled)

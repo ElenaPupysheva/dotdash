@@ -35,6 +35,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.core.common.MorsePlayer
@@ -57,7 +59,8 @@ fun TrainingScreen(
     val selectedAnswer by viewModel.selectedAnswer.collectAsState()
     val correctAnswersCount by viewModel.correctAnswersCount.collectAsState()
     val answeredQuestionsCount by viewModel.answeredQuestionsCount.collectAsState()
-
+    val appSettings by viewModel.appSettings.collectAsState()
+    val haptic = LocalHapticFeedback.current
     val soundPlayer = remember { ToneBeepPlayer() }
     val morsePlayer = remember { MorsePlayer(soundPlayer) }
 
@@ -226,7 +229,12 @@ fun TrainingScreen(
 
                                 QuizButton(
                                     symbol = option,
-                                    onClick = { viewModel.onAnswerSelected(option) },
+                                    onClick = {
+                                        viewModel.onAnswerSelected(option)
+                                        if (appSettings.vibrationEnabled) {
+                                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        }
+                                    },
                                     enabled = !showResult,
                                     containerColor = buttonContainerColor,
                                     contentColor = buttonContentColor,
