@@ -54,19 +54,19 @@
 ## Скриншоты
 
 ### Главный экран
-![Главный экран](screenshots/home.png)
+![Главный экран](screenshots/home_screen.png)
 
 ### Словарь
-![Словарь](screenshots/dictionary.png)
+![Словарь](screenshots/dictionary_screen.png)
 
 ### Тренировка
-![Тренировка](screenshots/training.png)
+![Тренировка](screenshots/training_screen.png)
 
 ### Статистика
-![Статистика](screenshots/statistics.png)
+![Статистика](screenshots/statistics_screen.png)
 
 ### Настройки
-![Настройки](screenshots/settings.png)
+![Настройки](screenshots/settings_screen.png)
 
 ---
 
