@@ -1,18 +1,26 @@
 package com.alonso.dotdash.presentation.training
 
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alonso.dotdash.data.local.AppSettings
 import com.alonso.dotdash.domain.model.TrainingQuestion
+import com.alonso.dotdash.domain.repository.AppSettingsRepository
 import com.alonso.dotdash.domain.repository.StatisticsRepository
 import com.alonso.dotdash.domain.repository.TrainingRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
+private const val MILLIS = 5000L
 class TrainingViewModel(
     private val repository: TrainingRepository,
-    private val statisticsRepository: StatisticsRepository
+    private val statisticsRepository: StatisticsRepository,
+    appSettingsRepository: AppSettingsRepository
 ) : ViewModel() {
+
     private val _currentQuestion = MutableStateFlow<TrainingQuestion?>(null)
     val currentQuestion = _currentQuestion.asStateFlow()
 
@@ -21,13 +29,24 @@ class TrainingViewModel(
 
     private val _showResult = MutableStateFlow(false)
     val showResult = _showResult.asStateFlow()
+
     private val _correctAnswersCount = MutableStateFlow(0)
     val correctAnswersCount = _correctAnswersCount.asStateFlow()
+
     private val _answeredQuestionsCount = MutableStateFlow(0)
     val answeredQuestionsCount = _answeredQuestionsCount.asStateFlow()
+
     private val _selectedAnswer = MutableStateFlow<String?>(null)
     val selectedAnswer = _selectedAnswer.asStateFlow()
 
+    val appSettings = appSettingsRepository.getSettings().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(MILLIS),
+        initialValue = AppSettings()
+    )
+
+    private var sessionStartTimeMillis: Long = 0L
+    private val sessionCorrectSymbols = mutableSetOf<String>()
 
     init {
         loadTraining()
@@ -41,6 +60,10 @@ class TrainingViewModel(
             _isAnswerCorrect.value = null
             _correctAnswersCount.value = 0
             _answeredQuestionsCount.value = 0
+            _selectedAnswer.value = null
+
+            sessionStartTimeMillis = SystemClock.elapsedRealtime()
+            sessionCorrectSymbols.clear()
         }
     }
 
@@ -55,8 +78,12 @@ class TrainingViewModel(
             _showResult.value = true
             _answeredQuestionsCount.value += 1
             _selectedAnswer.value = answer
+
             if (isCorrect) {
                 _correctAnswersCount.value += 1
+                _currentQuestion.value?.correctAnswer?.let { correctSymbol ->
+                    sessionCorrectSymbols.add(correctSymbol)
+                }
             }
         }
     }
@@ -79,18 +106,20 @@ class TrainingViewModel(
         loadTraining()
     }
 
-    private fun endTraining() {
-        viewModelScope.launch {
-            statisticsRepository.updateStatistics(
-                correctAnswers = _correctAnswersCount.value,
-                answeredQuestions = _answeredQuestionsCount.value
-            )
-            repository.endTraining()
-            _currentQuestion.value = null
-            _showResult.value = false
-            _isAnswerCorrect.value = null
-            _selectedAnswer.value = null
-        }
+    private suspend fun endTraining() {
+        val trainingTimeMillis = SystemClock.elapsedRealtime() - sessionStartTimeMillis
+
+        statisticsRepository.updateStatistics(
+            correctAnswers = _correctAnswersCount.value,
+            answeredQuestions = _answeredQuestionsCount.value,
+            trainingTimeMillis = trainingTimeMillis,
+            correctSymbols = sessionCorrectSymbols.toSet()
+        )
+
+        repository.endTraining()
+        _currentQuestion.value = null
+        _showResult.value = false
+        _isAnswerCorrect.value = null
+        _selectedAnswer.value = null
     }
 }
-

@@ -1,22 +1,19 @@
-package com.alonso.dotdash.presentation.training
+package com.alonso.dotdash.presentation.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.alonso.dotdash.domain.repository.AppSettingsRepository
 import com.alonso.dotdash.domain.repository.StatisticsRepository
-import com.alonso.dotdash.domain.repository.TrainingRepository
 
-class TrainingViewModelFactory(
-    private val repository: TrainingRepository,
+class SettingsViewModelFactory(
     private val statisticsRepository: StatisticsRepository,
     private val appSettingsRepository: AppSettingsRepository
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TrainingViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(SettingsViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TrainingViewModel(
-                repository = repository,
+            return SettingsViewModel(
                 statisticsRepository = statisticsRepository,
                 appSettingsRepository = appSettingsRepository
             ) as T

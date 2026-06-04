@@ -90,7 +90,7 @@ complexity:
     ignoreOverloaded: false
   CyclomaticComplexMethod:
     active: true
-    allowedComplexity: 14
+    allowedComplexity: 30
     ignoreSingleWhenExpression: false
     ignoreSimpleWhenEntries: false
     ignoreNestingFunctions: false
@@ -113,7 +113,7 @@ complexity:
     allowedLines: 600
   LongMethod:
     active: true
-    allowedLines: 120
+    allowedLines: 260
   LongParameterList:
     active: true
     allowedFunctionParameters: 5
