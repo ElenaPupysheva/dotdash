@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,8 +37,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.alonso.dotdash.R
 import com.alonso.dotdash.core.common.MorsePlayer
 import com.alonso.dotdash.core.common.ToneBeepPlayer
 import com.alonso.dotdash.core.ui.QuizButton
@@ -82,7 +84,6 @@ fun TrainingScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                windowInsets = androidx.compose.foundation.layout.WindowInsets(0),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -91,7 +92,7 @@ fun TrainingScreen(
                 ),
                 title = {
                     Text(
-                        text = "Упражнения",
+                        text = stringResource(R.string.training),
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -101,7 +102,7 @@ fun TrainingScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 },
@@ -139,7 +140,7 @@ fun TrainingScreen(
                 Spacer(modifier = Modifier.height(28.dp))
 
                 Text(
-                    text = "КАКОЙ БУКВЕ СООТВЕТСТВУЕТ КОД?",
+                    text = stringResource(R.string.which_letter),
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -163,13 +164,13 @@ fun TrainingScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Filled.VolumeUp,
+                            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
-                            text = "Прослушать",
+                            text = stringResource(R.string.listen),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -181,9 +182,9 @@ fun TrainingScreen(
                 if (showResult) {
                     Text(
                         text = if (isAnswerCorrect == true) {
-                            "Правильно"
+                            stringResource(R.string.correct)
                         } else {
-                            "Неправильно"
+                            stringResource(R.string.incorrect)
                         },
                         style = MaterialTheme.typography.titleSmall,
                         color = if (isAnswerCorrect == true) {
@@ -267,7 +268,7 @@ fun TrainingScreen(
                         .height(58.dp)
                 ) {
                     Text(
-                        text = "Следующий вопрос",
+                        text = stringResource(R.string.next_question),
                         style = MaterialTheme.typography.titleSmall
                     )
                 }
@@ -295,7 +296,7 @@ fun TrainingScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "Тренировка завершена",
+                            text = stringResource(R.string.completed),
                             style = MaterialTheme.typography.titleLarge,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -330,7 +331,7 @@ fun TrainingScreen(
                                 .height(56.dp)
                         ) {
                             Text(
-                                text = "Заново",
+                                text = stringResource(R.string.again),
                                 style = MaterialTheme.typography.titleSmall
                             )
                         }

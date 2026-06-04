@@ -7,4 +7,5 @@ interface AppSettingsRepository {
     fun getSettings(): Flow<AppSettings>
     suspend fun setVibrationEnabled(enabled: Boolean)
     suspend fun setTrainingReminderEnabled(enabled: Boolean)
+    suspend fun setLastOpenedEpochDay(day: Long)
 }
