@@ -1,5 +1,10 @@
 package com.alonso.dotdash.presentation.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,9 +29,9 @@ import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Vibration
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,8 +50,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.alonso.dotdash.R
 import com.alonso.dotdash.core.common.openSupportLink
+import com.alonso.dotdash.core.notification.cancelReminderWork
+import com.alonso.dotdash.core.notification.scheduleReminderWork
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,13 +66,35 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val statistics by viewModel.statistics.collectAsState()
-
     val appSettings by viewModel.appSettings.collectAsState()
+
+    val notificationPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (isGranted) {
+                viewModel.updateTrainingReminderEnabled(true)
+                scheduleReminderWork(context.applicationContext)
+            } else {
+                viewModel.updateTrainingReminderEnabled(false)
+                cancelReminderWork(context.applicationContext)
+            }
+        }
+
+    fun hasNotificationPermission(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+        } else {
+            true
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                windowInsets = androidx.compose.foundation.layout.WindowInsets(0),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -97,10 +127,10 @@ fun SettingsScreen(
                 .padding(horizontal = 20.dp, vertical = 8.dp)
                 .navigationBarsPadding()
         ) {
-            SettingsSectionTitle(title = "Внешний вид")
+            SettingsSectionTitle(title = stringResource(R.string.appearance))
             SettingsGroupCard {
                 SettingsSwitchRow(
-                    title = "Тёмная тема",
+                    title = stringResource(R.string.theme),
                     subtitle = if (isDarkTheme) {
                         stringResource(R.string.dark_theme)
                     } else {
@@ -114,19 +144,19 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.size(20.dp))
 
-            SettingsSectionTitle(title = "Обучение")
+            SettingsSectionTitle(title = stringResource(R.string.learning))
             SettingsGroupCard {
                 SettingsSwitchRow(
-                    title = "Вибрация",
-                    subtitle = "При ответе",
+                    title = stringResource(R.string.vibration),
+                    subtitle = stringResource(R.string.on_reply),
                     icon = Icons.Filled.Vibration,
                     checked = appSettings.vibrationEnabled,
                     onCheckedChange = viewModel::updateVibrationEnabled
                 )
                 SettingsDivider()
                 SettingsGoalRow(
-                    title = "Дневная цель",
-                    subtitle = "Количество знаков в день",
+                    title = stringResource(R.string.daily_goal),
+                    subtitle = stringResource(R.string.num_per_day),
                     icon = Icons.Filled.Favorite,
                     goal = statistics.dailyGoal,
                     onDecrease = { viewModel.updateDailyGoal(statistics.dailyGoal - 1) },
@@ -136,14 +166,29 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.size(20.dp))
 
-            SettingsSectionTitle(title = "Уведомление")
+            SettingsSectionTitle(title = stringResource(R.string.notification))
             SettingsGroupCard {
                 SettingsSwitchRow(
-                    title = "Напоминания о тренировке",
-                    subtitle = "Каждый день в 19:00",
+                    title = stringResource(R.string.reminder),
+                    subtitle = stringResource(R.string.reminder_txt),
                     icon = Icons.Filled.Notifications,
                     checked = appSettings.trainingReminderEnabled,
-                    onCheckedChange = viewModel::updateTrainingReminderEnabled
+                    onCheckedChange = { enabled ->
+                        if (!enabled) {
+                            viewModel.updateTrainingReminderEnabled(false)
+                            cancelReminderWork(context.applicationContext)
+                        } else {
+                            if (hasNotificationPermission()) {
+                                viewModel.updateTrainingReminderEnabled(true)
+                                scheduleReminderWork(context.applicationContext)
+                            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                viewModel.updateTrainingReminderEnabled(true)
+                                scheduleReminderWork(context.applicationContext)
+                            }
+                        }
+                    }
                 )
             }
 
@@ -376,9 +421,9 @@ private fun SettingsLeadingIcon(
 
 @Composable
 private fun SettingsDivider() {
-    Divider(
-        color = MaterialTheme.colorScheme.outlineVariant,
+    HorizontalDivider(
+        modifier = Modifier.padding(horizontal = 14.dp),
         thickness = 1.dp,
-        modifier = Modifier.padding(horizontal = 14.dp)
+        color = MaterialTheme.colorScheme.outlineVariant
     )
 }

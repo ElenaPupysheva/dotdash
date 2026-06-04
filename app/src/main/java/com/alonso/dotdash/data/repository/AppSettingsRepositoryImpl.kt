@@ -20,4 +20,8 @@ class AppSettingsRepositoryImpl(
     override suspend fun setTrainingReminderEnabled(enabled: Boolean) {
         dataStore.setTrainingReminderEnabled(enabled)
     }
+
+    override suspend fun setLastOpenedEpochDay(day: Long) {
+        dataStore.setLastOpenedEpochDay(day)
+    }
 }

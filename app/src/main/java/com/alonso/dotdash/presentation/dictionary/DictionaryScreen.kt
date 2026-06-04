@@ -36,14 +36,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.alonso.dotdash.R
 import com.alonso.dotdash.core.common.MorsePlayer
 import com.alonso.dotdash.core.common.ToneBeepPlayer
 import com.alonso.dotdash.core.ui.DictionaryCard
 import com.alonso.dotdash.data.local.LocalMorseDataSource
 import com.alonso.dotdash.domain.model.MorseSymbol
+import com.alonso.dotdash.ui.theme.surfaceContainerLowLight
 
 private const val DICTIONARY_COLUMN_SIZE = 2
 
@@ -122,7 +125,6 @@ fun DictionaryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                windowInsets = androidx.compose.foundation.layout.WindowInsets(0),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -130,7 +132,7 @@ fun DictionaryScreen(
                 ),
                 title = {
                     Text(
-                        text = "Словарь",
+                        text = stringResource(R.string.dictionary),
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -194,7 +196,7 @@ private fun DictionarySearchBar(
 ) {
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = surfaceContainerLowLight,
         tonalElevation = 1.dp,
         modifier = Modifier.fillMaxWidth()
     ) {

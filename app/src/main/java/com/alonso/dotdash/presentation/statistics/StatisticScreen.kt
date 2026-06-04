@@ -17,9 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Percent
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -39,9 +39,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.alonso.dotdash.R
 import com.alonso.dotdash.ui.theme.SuccessGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,7 +57,6 @@ fun StatisticScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                windowInsets = androidx.compose.foundation.layout.WindowInsets(0),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.onBackground,
@@ -63,7 +64,7 @@ fun StatisticScreen(
                 ),
                 title = {
                     Text(
-                        text = "Статистика",
+                        text = stringResource(R.string.statistic),
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -73,7 +74,7 @@ fun StatisticScreen(
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Назад"
+                            contentDescription = stringResource(R.string.back)
                         )
                     }
                 }
@@ -111,7 +112,7 @@ fun StatisticScreen(
 
                     StatisticInfoCard(
                         title = statistics.totalCorrectAnswers.toString(),
-                        subtitle = "Верных ответов",
+                        subtitle = stringResource(R.string.correct_answers),
                         icon = Icons.Filled.CheckCircle,
                         iconTint = SuccessGreen,
                         modifier = Modifier.weight(1f)
@@ -124,15 +125,15 @@ fun StatisticScreen(
                 ) {
                     StatisticInfoCard(
                         title = statistics.totalAnsweredQuestions.toString(),
-                        subtitle = "Всего ответов",
-                        icon = Icons.Filled.EmojiEvents,
-                        iconTint = MaterialTheme.colorScheme.tertiary,
+                        subtitle = stringResource(R.string.total_answers),
+                        icon = Icons.Filled.QuestionMark,
+                        iconTint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f)
                     )
 
                     StatisticInfoCard(
                         title = "${statistics.accuracyPercent}%",
-                        subtitle = "Точность",
+                        subtitle = stringResource(R.string.accuracy),
                         icon = Icons.Filled.Percent,
                         iconTint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.weight(1f)
@@ -188,7 +189,7 @@ private fun StatisticsHeroCard(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "ОБЩАЯ ТОЧНОСТЬ",
+                text = stringResource(R.string.total_accuracy),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.9f)
             )

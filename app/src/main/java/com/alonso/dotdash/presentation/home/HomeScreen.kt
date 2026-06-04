@@ -10,10 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -37,11 +40,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.alonso.dotdash.R
 import com.alonso.dotdash.core.navigation.Screen
+import com.alonso.dotdash.ui.theme.NavTextActiveLight
 import com.alonso.dotdash.ui.theme.SuccessGreen
 
 private data class HomeMenuItemUi(
@@ -67,32 +74,32 @@ fun HomeScreen(
 
     val menuItems = listOf(
         HomeMenuItemUi(
-            title = "Упражнения",
-            subtitle = "Тренируйся каждый день",
+            title = stringResource(R.string.training),
+            subtitle = stringResource(R.string.txt_training),
             icon = Icons.Filled.PlayArrow,
             route = Screen.TrainingScreen.route,
             iconTint = MaterialTheme.colorScheme.primary,
             iconContainer = MaterialTheme.colorScheme.primaryContainer
         ),
         HomeMenuItemUi(
-            title = "Словарь",
-            subtitle = "Все символы Морзе",
+            title = stringResource(R.string.dictionary),
+            subtitle = stringResource(R.string.txt_dictionary),
             icon = Icons.AutoMirrored.Filled.MenuBook,
             route = Screen.DictionaryScreen.route,
             iconTint = MaterialTheme.colorScheme.primary,
             iconContainer = MaterialTheme.colorScheme.primaryContainer
         ),
         HomeMenuItemUi(
-            title = "Статистика",
-            subtitle = "Твой прогресс",
+            title = stringResource(R.string.statistic),
+            subtitle = stringResource(R.string.txt_statistic),
             icon = Icons.Filled.BarChart,
             route = Screen.StatisticScreen.route,
             iconTint = SuccessGreen,
             iconContainer = SuccessGreen.copy(alpha = 0.12f)
         ),
         HomeMenuItemUi(
-            title = "Настройки",
-            subtitle = "Тема, звук, поддержка",
+            title = stringResource(R.string.settings),
+            subtitle = stringResource(R.string.txt_settings),
             icon = Icons.Filled.Settings,
             route = Screen.SettingsScreen.route,
             iconTint = MaterialTheme.colorScheme.primary,
@@ -111,7 +118,7 @@ fun HomeScreen(
     val stats = listOf(
         HomeStatUi(statistics.learnedSymbolsCount.toString(), "выучено"),
         HomeStatUi("${statistics.accuracyPercent}%", "точность"),
-        HomeStatUi("${statistics.todayTrainingMinutes}м", "сегодня")
+        HomeStatUi("${statistics.todayTrainingMinutes}мин", "сегодня")
     )
 
     Scaffold(
@@ -121,10 +128,12 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 16.dp)
+                .navigationBarsPadding()
         ) {
             Text(
-                text = "Точка и тире",
+                text = stringResource(R.string.header),
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onBackground
             )
@@ -132,10 +141,10 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             HomeHeroCard(
-                title = "Цель на сегодня",
+                title = stringResource(R.string.aim_txt),
                 progressText = progressText,
                 progress = progressValue,
-                buttonText = "Продолжить",
+                buttonText = stringResource(R.string.continue_txt),
                 onClick = { navController.navigate(Screen.TrainingScreen.route) }
             )
 
@@ -157,7 +166,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             Text(
-                text = "Разделы",
+                text = stringResource(R.string.sections),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -179,6 +188,7 @@ fun HomeScreen(
                     )
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
@@ -274,12 +284,12 @@ private fun HomeHeroCard(
                     Text(
                         text = buttonText,
                         style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = NavTextActiveLight
                     )
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = NavTextActiveLight,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -381,8 +391,10 @@ private fun HomeMenuCard(
 
                 Text(
                     text = subtitle,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
 
