@@ -2,6 +2,7 @@ package com.alonso.dotdash
 
 import android.app.Activity
 import android.os.Bundle
+
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -64,9 +65,8 @@ class MainActivity : ComponentActivity() {
         super.onStart()
 
         lifecycleScope.launch {
-            appSettingsRepository.setLastOpenedEpochDay(
-                LocalDate.now().toEpochDay()
-            )
+            val today = LocalDate.now().toEpochDay()
+            appSettingsRepository.setLastOpenedEpochDay(today)
         }
     }
 }

@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -51,6 +52,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.alonso.dotdash.R
 import com.alonso.dotdash.core.common.openSupportLink
 import com.alonso.dotdash.core.notification.cancelReminderWork
@@ -65,6 +69,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel
 ) {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val statistics by viewModel.statistics.collectAsState()
     val appSettings by viewModel.appSettings.collectAsState()
 
@@ -89,6 +94,23 @@ fun SettingsScreen(
             ) == PackageManager.PERMISSION_GRANTED
         } else {
             true
+        }
+    }
+
+    DisposableEffect(lifecycleOwner, appSettings.trainingReminderEnabled) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (!hasNotificationPermission() && appSettings.trainingReminderEnabled) {
+                    viewModel.updateTrainingReminderEnabled(false)
+                    cancelReminderWork(context.applicationContext)
+                }
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 
@@ -172,7 +194,7 @@ fun SettingsScreen(
                     title = stringResource(R.string.reminder),
                     subtitle = stringResource(R.string.reminder_txt),
                     icon = Icons.Filled.Notifications,
-                    checked = appSettings.trainingReminderEnabled,
+                    checked = appSettings.trainingReminderEnabled && hasNotificationPermission(),
                     onCheckedChange = { enabled ->
                         if (!enabled) {
                             viewModel.updateTrainingReminderEnabled(false)
@@ -321,10 +343,18 @@ private fun SettingsGoalRow(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onDecrease) {
+            IconButton(
+                onClick = onDecrease,
+                enabled = goal > MIN_DAILY_GOAL
+            ) {
                 Icon(
                     imageVector = Icons.Filled.Remove,
-                    contentDescription = "Уменьшить"
+                    contentDescription = stringResource(R.string.decrease),
+                    tint = if (goal == MIN_DAILY_GOAL) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
                 )
             }
 
@@ -335,10 +365,18 @@ private fun SettingsGoalRow(
                 modifier = Modifier.padding(horizontal = 6.dp)
             )
 
-            IconButton(onClick = onIncrease) {
+            IconButton(
+                onClick = onIncrease,
+                enabled = goal < MAX_DAILY_GOAL
+            ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Увеличить"
+                    contentDescription = stringResource(R.string.increase),
+                    tint = if (goal >= MAX_DAILY_GOAL) {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    }
                 )
             }
         }

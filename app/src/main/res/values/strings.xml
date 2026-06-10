@@ -44,4 +44,6 @@
     <string name="learning">Learning</string>
     <string name="appearance">Appearance</string>
     <string name="large_notify">You haven\'t opened DotDash in a while. Let\'s repeat Morse code</string>
+    <string name="increase">Increase</string>
+    <string name="decrease">Decrease</string>
 </resources>

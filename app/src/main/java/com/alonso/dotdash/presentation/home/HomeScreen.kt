@@ -118,7 +118,7 @@ fun HomeScreen(
     val stats = listOf(
         HomeStatUi(statistics.learnedSymbolsCount.toString(), "выучено"),
         HomeStatUi("${statistics.accuracyPercent}%", "точность"),
-        HomeStatUi("${statistics.todayTrainingMinutes}мин", "сегодня")
+        HomeStatUi("${statistics.todayTrainingMinutes} мин", "сегодня")
     )
 
     Scaffold(
