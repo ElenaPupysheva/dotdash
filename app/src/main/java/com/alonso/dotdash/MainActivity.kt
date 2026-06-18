@@ -2,7 +2,6 @@ package com.alonso.dotdash
 
 import android.app.Activity
 import android.os.Bundle
-
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,7 +14,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import com.alonso.dotdash.core.navigation.Navigation
-import com.alonso.dotdash.core.notification.NotificationHelper
 import com.alonso.dotdash.data.local.AppSettingsDataStore
 import com.alonso.dotdash.data.repository.AppSettingsRepositoryImpl
 import com.alonso.dotdash.ui.theme.DotdashTheme
@@ -34,7 +32,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
-        NotificationHelper.createNotificationChannel(this)
 
         setContent {
             var isDarkTheme by rememberSaveable { mutableStateOf(false) }

@@ -19,6 +19,18 @@ fun scheduleReminderWork(context: Context) {
     )
 }
 
+fun ensureReminderWorkScheduled(context: Context) {
+    val request = PeriodicWorkRequestBuilder<ReminderWorker>(
+        1, TimeUnit.DAYS
+    ).build()
+
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        TRAINING_REMINDER_WORK_NAME,
+        ExistingPeriodicWorkPolicy.KEEP,
+        request
+    )
+}
+
 fun cancelReminderWork(context: Context) {
     WorkManager.getInstance(context).cancelUniqueWork(TRAINING_REMINDER_WORK_NAME)
 }
