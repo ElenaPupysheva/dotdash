@@ -11,7 +11,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 private const val DEFAULT_DAILY_GOAL = 20
-private const val MIN_DAILY_GOAL = 1
+const val MIN_DAILY_GOAL = 1
+const val MAX_DAILY_GOAL = 100
 private const val MILLIS = 5000L
 
 class SettingsViewModel(
@@ -41,10 +42,10 @@ class SettingsViewModel(
     )
 
     fun updateDailyGoal(goal: Int) {
-        if (goal < MIN_DAILY_GOAL) return
+        val normalizedGoal = goal.coerceIn(MIN_DAILY_GOAL, MAX_DAILY_GOAL)
 
         viewModelScope.launch {
-            statisticsRepository.updateDailyGoal(goal)
+            statisticsRepository.updateDailyGoal(normalizedGoal)
         }
     }
 

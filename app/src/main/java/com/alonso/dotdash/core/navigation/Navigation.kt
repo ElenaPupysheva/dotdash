@@ -4,14 +4,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.alonso.dotdash.data.local.AppSettingsDataStore
 import com.alonso.dotdash.data.local.StatisticsDataStore
 import com.alonso.dotdash.data.repository.AppSettingsRepositoryImpl
 import com.alonso.dotdash.data.repository.StatisticsRepositoryImpl
 import com.alonso.dotdash.data.repository.TrainingRepositoryImpl
+import com.alonso.dotdash.domain.model.MorseAlphabet
+import com.alonso.dotdash.domain.model.TrainingGameType
 import com.alonso.dotdash.presentation.dictionary.DictionaryScreen
 import com.alonso.dotdash.presentation.home.HomeScreen
 import com.alonso.dotdash.presentation.home.HomeViewModel
@@ -22,6 +26,7 @@ import com.alonso.dotdash.presentation.settings.SettingsViewModelFactory
 import com.alonso.dotdash.presentation.statistics.StatisticScreen
 import com.alonso.dotdash.presentation.statistics.StatisticsViewModel
 import com.alonso.dotdash.presentation.statistics.StatisticsViewModelFactory
+import com.alonso.dotdash.presentation.training.BufferScreen
 import com.alonso.dotdash.presentation.training.TrainingScreen
 import com.alonso.dotdash.presentation.training.TrainingViewModel
 import com.alonso.dotdash.presentation.training.TrainingViewModelFactory
@@ -91,19 +96,62 @@ fun Navigation(
             )
         }
 
-        composable(Screen.TrainingScreen.route) {
-            val factory = remember {
+        composable(
+            route = Screen.TrainingScreen.route,
+            arguments = listOf(
+                navArgument(Screen.TrainingScreen.ARG_ALPHABET) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val alphabetName = backStackEntry.arguments
+                ?.getString(Screen.TrainingScreen.ARG_ALPHABET)
+
+            val alphabet = runCatching {
+                MorseAlphabet.valueOf(alphabetName.orEmpty())
+            }.getOrDefault(MorseAlphabet.RUS)
+
+            val factory = remember(alphabet) {
                 TrainingViewModelFactory(
+                    alphabet = alphabet,
                     repository = trainingRepository,
                     statisticsRepository = statisticsRepository,
                     appSettingsRepository = appSettingsRepository
                 )
             }
+
             val trainingViewModel: TrainingViewModel = viewModel(factory = factory)
 
             TrainingScreen(
-                onBackClick = { navController.popBackStack() },
+                onBackClick = {
+                    navController.popBackStack(
+                        route = Screen.BufferScreen.route,
+                        inclusive = false
+                    )
+                },
                 viewModel = trainingViewModel
+            )
+        }
+
+        composable(Screen.BufferScreen.route) {
+            BufferScreen(
+                onBackClick = {
+                    navController.popBackStack(
+                        route = Screen.HomeScreen.route,
+                        inclusive = false
+                    )
+                },
+                onPlayClick = { game, alphabet ->
+                    when (game.type) {
+                        TrainingGameType.CLASSIC -> {
+                            navController.navigate(
+                                Screen.TrainingScreen.createRoute(alphabet)
+                            ) {
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+                }
             )
         }
     }

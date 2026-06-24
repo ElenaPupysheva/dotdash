@@ -1,20 +1,26 @@
 package com.alonso.dotdash.domain.usecase
 
 import com.alonso.dotdash.data.local.LocalMorseDataSource
+import com.alonso.dotdash.domain.model.MorseAlphabet
 import com.alonso.dotdash.domain.model.TrainingQuestion
 
 const val QUIZSIZE = 10
 const val WRONGSIZE = 3
-fun createQuizQuestions(): MutableList<TrainingQuestion> {
+fun createQuizQuestions(alphabet: MorseAlphabet): MutableList<TrainingQuestion> {
+    val sourceSymbols = when (alphabet) {
+        MorseAlphabet.RUS -> LocalMorseDataSource.russianSymbols
+        MorseAlphabet.ENG -> LocalMorseDataSource.englishSymbols
+        MorseAlphabet.DIGITS -> LocalMorseDataSource.digitsSymbols
+    }
     val questions = mutableListOf<TrainingQuestion>()
     while (questions.size < QUIZSIZE) {
-        val currentSymbol = LocalMorseDataSource.russianSymbols.random()
+        val currentSymbol = sourceSymbols.random()
         val morseCode = currentSymbol.morseCode
         val correctAnswer = currentSymbol.symbol
         val wrongAnswers = mutableListOf<String>()
 
         while (wrongAnswers.size < WRONGSIZE) {
-            val randomSymbol = LocalMorseDataSource.russianSymbols.random()
+            val randomSymbol = sourceSymbols.random()
             val wrongAnswer = randomSymbol.symbol
             if (wrongAnswer != correctAnswer && wrongAnswer !in wrongAnswers) {
                 wrongAnswers.add(wrongAnswer)

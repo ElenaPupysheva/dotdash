@@ -77,7 +77,7 @@ fun HomeScreen(
             title = stringResource(R.string.training),
             subtitle = stringResource(R.string.txt_training),
             icon = Icons.Filled.PlayArrow,
-            route = Screen.TrainingScreen.route,
+            route = Screen.BufferScreen.route,
             iconTint = MaterialTheme.colorScheme.primary,
             iconContainer = MaterialTheme.colorScheme.primaryContainer
         ),
@@ -118,7 +118,7 @@ fun HomeScreen(
     val stats = listOf(
         HomeStatUi(statistics.learnedSymbolsCount.toString(), "выучено"),
         HomeStatUi("${statistics.accuracyPercent}%", "точность"),
-        HomeStatUi("${statistics.todayTrainingMinutes}мин", "сегодня")
+        HomeStatUi("${statistics.todayTrainingMinutes} мин", "сегодня")
     )
 
     Scaffold(
@@ -145,7 +145,9 @@ fun HomeScreen(
                 progressText = progressText,
                 progress = progressValue,
                 buttonText = stringResource(R.string.continue_txt),
-                onClick = { navController.navigate(Screen.TrainingScreen.route) }
+                onClick = {
+                    navController.navigate(Screen.BufferScreen.route)
+                }
             )
 
             Spacer(modifier = Modifier.height(14.dp))

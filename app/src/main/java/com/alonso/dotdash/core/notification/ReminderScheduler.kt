@@ -7,7 +7,6 @@ import androidx.work.WorkManager
 import java.util.concurrent.TimeUnit
 
 private const val TRAINING_REMINDER_WORK_NAME = "training_reminder_work"
-
 fun scheduleReminderWork(context: Context) {
     val request = PeriodicWorkRequestBuilder<ReminderWorker>(
         1, TimeUnit.DAYS
@@ -16,6 +15,18 @@ fun scheduleReminderWork(context: Context) {
     WorkManager.getInstance(context).enqueueUniquePeriodicWork(
         TRAINING_REMINDER_WORK_NAME,
         ExistingPeriodicWorkPolicy.UPDATE,
+        request
+    )
+}
+
+fun ensureReminderWorkScheduled(context: Context) {
+    val request = PeriodicWorkRequestBuilder<ReminderWorker>(
+        1, TimeUnit.DAYS
+    ).build()
+
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        TRAINING_REMINDER_WORK_NAME,
+        ExistingPeriodicWorkPolicy.KEEP,
         request
     )
 }
