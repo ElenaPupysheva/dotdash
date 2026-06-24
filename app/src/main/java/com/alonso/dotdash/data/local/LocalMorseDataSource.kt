@@ -205,9 +205,9 @@ object LocalMorseDataSource {
             category = SymbolCategory.LETTER
         ),
         MorseSymbol(
-            id = "RUS_B",
-            symbol = "Б",
-            morseCode = "-...",
+            id = "RUS_В",
+            symbol = "В",
+            morseCode = ".--",
             alphabet = MorseAlphabet.RUS,
             category = SymbolCategory.LETTER
         ),
@@ -347,7 +347,7 @@ object LocalMorseDataSource {
         MorseSymbol(
             id = "RUS_Ц",
             symbol = "Ц",
-            morseCode = ".-.-",
+            morseCode = "-.-.",
             alphabet = MorseAlphabet.RUS,
             category = SymbolCategory.LETTER
         ),
@@ -396,7 +396,7 @@ object LocalMorseDataSource {
         MorseSymbol(
             id = "RUS_Э",
             symbol = "Э",
-            morseCode = "...--...",
+            morseCode = "...-...",
             alphabet = MorseAlphabet.RUS,
             category = SymbolCategory.LETTER
         ),
