@@ -46,4 +46,7 @@
     <string name="appearance">Внешний вид</string>
     <string name="increase">Увеличить</string>
     <string name="decrease">Уменьшить</string>
+    <string name="classic_training">Алфавит и цифры</string>
+    <string name="abbreviations_training">Аббревиатуры</string>
+    <string name="play">Играть</string>
 </resources>

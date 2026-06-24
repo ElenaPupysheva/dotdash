@@ -46,4 +46,7 @@
     <string name="large_notify">You haven\'t opened DotDash in a while. Let\'s repeat Morse code</string>
     <string name="increase">Increase</string>
     <string name="decrease">Decrease</string>
+    <string name="classic_training">Alphabet and numbers</string>
+    <string name="abbreviations_training">Abbreviation</string>
+    <string name="play">Play</string>
 </resources>
