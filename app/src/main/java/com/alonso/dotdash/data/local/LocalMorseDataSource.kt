@@ -396,7 +396,7 @@ object LocalMorseDataSource {
         MorseSymbol(
             id = "RUS_Э",
             symbol = "Э",
-            morseCode = "...-...",
+            morseCode = "..-..",
             alphabet = MorseAlphabet.RUS,
             category = SymbolCategory.LETTER
         ),
@@ -487,5 +487,181 @@ object LocalMorseDataSource {
             category = SymbolCategory.DIGIT
         )
     )
+
+
+    val qcodeSymbols = listOf(
+        MorseSymbol(
+            "CODE_QTH",
+            "QTH",
+            "--.- - ....",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "What is your location?"
+        ),
+        MorseSymbol(
+            "CODE_QSL",
+            "QSL",
+            "--.- ... .-..",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "I acknowledge receipt"
+        ),
+        MorseSymbol(
+            "CODE_QRZ",
+            "QRZ",
+            "--.- .-. --..",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "Who is calling me?"
+        ),
+        MorseSymbol(
+            "CODE_QRT",
+            "QRT",
+            "--.- .-. -",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "Stop sending"
+        ),
+        MorseSymbol(
+            "CODE_QRX",
+            "QRX",
+            "--.- .-. -..-",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "Please wait"
+        ),
+        MorseSymbol(
+            "CODE_QSY",
+            "QSY",
+            "--.- ... -.--",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "Change frequency"
+        ),
+        MorseSymbol(
+            "CODE_QRM",
+            "QRM",
+            "--.- .-. --",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "Interference"
+        ),
+        MorseSymbol(
+            "CODE_QRN",
+            "QRN",
+            "--.- .-. -.",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "Static interference"
+        ),
+        MorseSymbol(
+            "CODE_QSB",
+            "QSB",
+            "--.- ... -...",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "Signal strength varies"
+        ),
+        MorseSymbol(
+            "CODE_QTC",
+            "QTC",
+            "--.- - -.-.",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "I have a message to send"
+        ),
+        MorseSymbol(
+            "CODE_QTR",
+            "QTR",
+            "--.- - .-.",
+            MorseAlphabet.ENG,
+            SymbolCategory.QCODE,
+            "What time is it?"
+        )
+    )
+
+    val greetingsSymbols = listOf(
+        MorseSymbol(
+            "CODE_73",
+            "73",
+            "--... ...--",
+            MorseAlphabet.DIGITS,
+            SymbolCategory.GREETINGS,
+            "Best wishes"
+        ),
+        MorseSymbol(
+            "CODE_88",
+            "88",
+            "---.. ---..",
+            MorseAlphabet.DIGITS,
+            SymbolCategory.GREETINGS,
+            "Love and kisses"
+        ),
+        MorseSymbol(
+            "CODE_TU",
+            "TU",
+            "- ..-",
+            MorseAlphabet.ENG,
+            SymbolCategory.GREETINGS,
+            "Thank you"
+        ),
+        MorseSymbol(
+            "CODE_GA",
+            "GA",
+            "--. .-",
+            MorseAlphabet.ENG,
+            SymbolCategory.GREETINGS,
+            "Good afternoon / Go ahead"
+        ),
+        MorseSymbol(
+            "CODE_GM",
+            "GM",
+            "--. --",
+            MorseAlphabet.ENG,
+            SymbolCategory.GREETINGS,
+            "Good morning"
+        ),
+        MorseSymbol(
+            "CODE_GE",
+            "GE",
+            "--. .",
+            MorseAlphabet.ENG,
+            SymbolCategory.GREETINGS,
+            "Good evening"
+        ),
+        MorseSymbol(
+            "CODE_GN",
+            "GN",
+            "--. -.",
+            MorseAlphabet.ENG,
+            SymbolCategory.GREETINGS,
+            "Good night"
+        ),
+        MorseSymbol(
+            "CODE_HI",
+            "HI",
+            ".... ..",
+            MorseAlphabet.ENG,
+            SymbolCategory.GREETINGS,
+            "Laughter"
+        ),
+        MorseSymbol(
+            "CODE_BCNU",
+            "BCNU",
+            "-... -.-. -. ..-",
+            MorseAlphabet.ENG,
+            SymbolCategory.GREETINGS,
+            "Be seeing you"
+        ),
+        MorseSymbol(
+            "CODE_CUAGN",
+            "CUAGN",
+            "-.-. ..- .- --. -.",
+            MorseAlphabet.ENG,
+            SymbolCategory.GREETINGS,
+            "See you again"
+        )
+    )
     val symbols = englishSymbols + russianSymbols + digitsSymbols
 }
+
