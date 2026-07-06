@@ -4,8 +4,8 @@ import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alonso.dotdash.data.local.AppSettings
-import com.alonso.dotdash.domain.model.MorseAlphabet
 import com.alonso.dotdash.domain.model.TrainingQuestion
+import com.alonso.dotdash.domain.model.TrainingSource
 import com.alonso.dotdash.domain.repository.AppSettingsRepository
 import com.alonso.dotdash.domain.repository.StatisticsRepository
 import com.alonso.dotdash.domain.repository.TrainingRepository
@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 private const val MILLIS = 5000L
 class TrainingViewModel(
-    private val alphabet: MorseAlphabet,
+    private val source: TrainingSource,
     private val repository: TrainingRepository,
     private val statisticsRepository: StatisticsRepository,
     appSettingsRepository: AppSettingsRepository
@@ -56,7 +56,7 @@ class TrainingViewModel(
 
     fun loadTraining() {
         viewModelScope.launch {
-            val questions = repository.loadTraining(alphabet)
+            val questions = repository.loadTraining(source)
             _currentQuestion.value = questions.firstOrNull()
             _showResult.value = false
             _isAnswerCorrect.value = null

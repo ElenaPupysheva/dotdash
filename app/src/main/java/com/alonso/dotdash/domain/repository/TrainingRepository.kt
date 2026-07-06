@@ -1,11 +1,11 @@
 package com.alonso.dotdash.domain.repository
 
-import com.alonso.dotdash.domain.model.MorseAlphabet
 import com.alonso.dotdash.domain.model.TrainingQuestion
+import com.alonso.dotdash.domain.model.TrainingSource
 
 interface TrainingRepository {
-    suspend fun loadTraining(alphabet: MorseAlphabet): MutableList<TrainingQuestion>
-    suspend fun restartTraining(alphabet: MorseAlphabet)
+    suspend fun loadTraining(source: TrainingSource): MutableList<TrainingQuestion>
+    suspend fun restartTraining(source: TrainingSource)
     suspend fun selectAnswer(answer: String)
     suspend fun checkAnswer(): Boolean
     suspend fun nextQuestion(): TrainingQuestion
