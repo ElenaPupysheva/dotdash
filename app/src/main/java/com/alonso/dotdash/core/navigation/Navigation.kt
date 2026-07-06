@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.alonso.dotdash.data.local.AppSettingsDataStore
+import com.alonso.dotdash.data.local.HintAllowanceDataStore
 import com.alonso.dotdash.data.local.StatisticsDataStore
 import com.alonso.dotdash.data.repository.AppSettingsRepositoryImpl
 import com.alonso.dotdash.data.repository.StatisticsRepositoryImpl
@@ -31,6 +32,8 @@ import com.alonso.dotdash.presentation.training.BufferScreen
 import com.alonso.dotdash.presentation.training.TrainingScreen
 import com.alonso.dotdash.presentation.training.TrainingViewModel
 import com.alonso.dotdash.presentation.training.TrainingViewModelFactory
+import com.alonso.dotdash.presentation.training.qcode.HintAllowanceViewModel
+import com.alonso.dotdash.presentation.training.qcode.HintAllowanceViewModelFactory
 import com.alonso.dotdash.presentation.training.qcode.QCodeTrainingScreen
 
 @Composable
@@ -54,6 +57,9 @@ fun Navigation(
     }
     val appSettingsRepository = remember(appSettingsDataStore) {
         AppSettingsRepositoryImpl(appSettingsDataStore)
+    }
+    val hintAllowanceDataStore = remember(appContext) {
+        HintAllowanceDataStore(appContext)
     }
 
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route) {
@@ -179,9 +185,17 @@ fun Navigation(
 
             val qCodeViewModel: TrainingViewModel = viewModel(factory = factory)
 
+            val hintFactory = remember(hintAllowanceDataStore) {
+                HintAllowanceViewModelFactory(hintAllowanceDataStore)
+            }
+
+            val hintViewModel: HintAllowanceViewModel =
+                viewModel(factory = hintFactory)
+
             QCodeTrainingScreen(
                 onBackClick = { navController.popBackStack() },
-                viewModel = qCodeViewModel
+                viewModel = qCodeViewModel,
+                hintViewModel = hintViewModel
             )
         }
     }

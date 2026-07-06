@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -30,6 +31,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,11 +51,14 @@ import com.alonso.dotdash.core.ui.TrainingCard
 import com.alonso.dotdash.domain.model.TrainingQuestion
 import com.alonso.dotdash.presentation.training.TrainingViewModel
 import com.alonso.dotdash.ui.theme.SuccessGreen
+import kotlinx.coroutines.flow.Flow
 
+private const val DEFAULT_TRAINING = 10
 @Composable
 fun QCodeTrainingScreen(
     onBackClick: () -> Unit,
-    viewModel: TrainingViewModel
+    viewModel: TrainingViewModel,
+    hintViewModel: HintAllowanceViewModel
 ) {
     val currentQuestion by viewModel.currentQuestion.collectAsState()
     val showResult by viewModel.showResult.collectAsState()
@@ -61,6 +66,7 @@ fun QCodeTrainingScreen(
     val selectedAnswer by viewModel.selectedAnswer.collectAsState()
     val correctAnswersCount by viewModel.correctAnswersCount.collectAsState()
     val answeredQuestionsCount by viewModel.answeredQuestionsCount.collectAsState()
+    val hintsRemaining by hintViewModel.totalRemaining.collectAsState()
 
     currentQuestion?.let { question ->
         QCodeTrainingContent(
@@ -69,6 +75,9 @@ fun QCodeTrainingScreen(
             isAnswerCorrect = isAnswerCorrect,
             selectedAnswer = selectedAnswer,
             answeredQuestionsCount = answeredQuestionsCount,
+            hintsRemaining = hintsRemaining,
+            hintEvents = hintViewModel.events,
+            onHintRequested = hintViewModel::requestHint,
             onBackClick = onBackClick,
             onAnswerSelected = viewModel::onAnswerSelected,
             onNextQuestion = viewModel::onNextQuestion
@@ -87,7 +96,7 @@ fun QCodeTrainingResult(
     onBackClick: () -> Unit,
     onRestart: () -> Unit
 ) {
-    val totalQuestions = 10
+    val totalQuestions = DEFAULT_TRAINING
 
     Scaffold(
         topBar = {
@@ -180,7 +189,9 @@ fun QCodeTrainingResult(
                     }
                 }
             }
+
         }
+
     }
 }
 
@@ -192,12 +203,36 @@ fun QCodeTrainingContent(
     isAnswerCorrect: Boolean?,
     selectedAnswer: String?,
     answeredQuestionsCount: Int,
+    hintsRemaining: Int,
+    hintEvents: Flow<HintEvent>,
+    onHintRequested: () -> Unit,
     onBackClick: () -> Unit,
     onAnswerSelected: (String) -> Unit,
     onNextQuestion: () -> Unit
 ) {
     var showHint by rememberSaveable(question.morseCode) {
         mutableStateOf(false)
+    }
+    var hintUnlocked by rememberSaveable(question.morseCode) {
+        mutableStateOf(false)
+    }
+    var limitReached by rememberSaveable(question.morseCode) {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(question.morseCode, hintEvents) {
+        hintEvents.collect { event ->
+            when (event) {
+                HintEvent.Granted -> {
+                    hintUnlocked = true
+                    showHint = true
+                }
+
+                HintEvent.LimitReached -> {
+                    limitReached = true
+                }
+            }
+        }
     }
 
     val soundPlayer = remember { ToneBeepPlayer() }
@@ -266,14 +301,27 @@ fun QCodeTrainingContent(
             }
 
             question.hint?.let { hint ->
-                TextButton(onClick = { showHint = !showHint }) {
-                    Icon(Icons.Outlined.Lightbulb, null)
+                TextButton(
+                    onClick = {
+                        when {
+                            showHint -> showHint = false
+                            hintUnlocked -> showHint = true
+                            else -> onHintRequested()
+                        }
+                    }
+                ) {
+                    Icon(Icons.Outlined.Lightbulb, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
+
                     Text(
-                        stringResource(
-                            if (showHint) R.string.hide_hint
-                            else R.string.show_hint
-                        )
+                        if (showHint) {
+                            stringResource(R.string.hide_hint)
+                        } else {
+                            stringResource(
+                                R.string.show_hint_count,
+                                hintsRemaining
+                            )
+                        }
                     )
                 }
 
@@ -287,6 +335,25 @@ fun QCodeTrainingContent(
             }
 
             Spacer(Modifier.height(16.dp))
+            if (showResult) {
+                Text(
+                    text = stringResource(
+                        if (isAnswerCorrect == true) {
+                            R.string.correct
+                        } else {
+                            R.string.incorrect
+                        }
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = if (isAnswerCorrect == true) {
+                        SuccessGreen
+                    } else {
+                        MaterialTheme.colorScheme.error
+                    }
+                )
+
+                Spacer(Modifier.height(16.dp))
+            }
 
             question.options.chunked(2).forEach { options ->
                 Row(
@@ -327,5 +394,21 @@ fun QCodeTrainingContent(
 
             Spacer(Modifier.height(16.dp))
         }
+    }
+    if (limitReached) {
+        AlertDialog(
+            onDismissRequest = { limitReached = false },
+            title = {
+                Text(stringResource(R.string.no_hints_title))
+            },
+            text = {
+                Text(stringResource(R.string.no_hints_message))
+            },
+            confirmButton = {
+                TextButton(onClick = { limitReached = false }) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            }
+        )
     }
 }

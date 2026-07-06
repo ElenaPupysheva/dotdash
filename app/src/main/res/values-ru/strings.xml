@@ -59,4 +59,7 @@
     <string name="cyrillic">Кириллица</string>
     <string name="digits">Цифры</string>
     <string name="q_codes">Q-коды</string>
+    <string name="show_hint_count">Показать подсказку (%1$d)</string>
+    <string name="no_hints_title">Подсказки закончились</string>
+    <string name="no_hints_message">Бесплатные подсказки восстановятся завтра.</string>
 </resources>
