@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.alonso.dotdash"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.alonso.dotdash"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 4
         versionName = "1.0.3"
 
