@@ -56,7 +56,7 @@ fun createQCodeQuestions(): MutableList<TrainingQuestion> {
                 morseCode = currentSymbol.morseCode,
                 correctAnswer = currentSymbol.symbol,
                 options = (wrongAnswers + currentSymbol.symbol).shuffled(),
-                hint = currentSymbol.meaning
+                hint = currentSymbol.meaning?.current()
             )
         }
         .toMutableList()

@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -74,7 +74,7 @@ fun DictionaryCard(
                     modifier = Modifier.size(36.dp)
                 ) {
                     Icon(
-                        imageVector = if (isPlaying) Icons.Filled.Pause else Icons.Filled.VolumeUp,
+                        imageVector = if (isPlaying) Icons.Filled.Pause else Icons.AutoMirrored.Filled.VolumeUp,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.primary
                     )

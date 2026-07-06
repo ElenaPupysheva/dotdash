@@ -6,5 +6,5 @@ data class MorseSymbol(
     val morseCode: String,
     val alphabet: MorseAlphabet,
     val category: SymbolCategory,
-    val meaning: String? = null
+    val meaning: LocalizedMeaning? = null
 )

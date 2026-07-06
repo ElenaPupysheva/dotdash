@@ -16,6 +16,7 @@ import com.alonso.dotdash.data.repository.StatisticsRepositoryImpl
 import com.alonso.dotdash.data.repository.TrainingRepositoryImpl
 import com.alonso.dotdash.domain.model.MorseAlphabet
 import com.alonso.dotdash.domain.model.TrainingGameType
+import com.alonso.dotdash.domain.model.TrainingSource
 import com.alonso.dotdash.presentation.dictionary.DictionaryScreen
 import com.alonso.dotdash.presentation.home.HomeScreen
 import com.alonso.dotdash.presentation.home.HomeViewModel
@@ -30,6 +31,7 @@ import com.alonso.dotdash.presentation.training.BufferScreen
 import com.alonso.dotdash.presentation.training.TrainingScreen
 import com.alonso.dotdash.presentation.training.TrainingViewModel
 import com.alonso.dotdash.presentation.training.TrainingViewModelFactory
+import com.alonso.dotdash.presentation.training.qcode.QCodeTrainingScreen
 
 @Composable
 fun Navigation(
@@ -111,9 +113,15 @@ fun Navigation(
                 MorseAlphabet.valueOf(alphabetName.orEmpty())
             }.getOrDefault(MorseAlphabet.RUS)
 
-            val factory = remember(alphabet) {
+            val source = when (alphabet) {
+                MorseAlphabet.RUS -> TrainingSource.RUSSIAN
+                MorseAlphabet.ENG -> TrainingSource.ENGLISH
+                MorseAlphabet.DIGITS -> TrainingSource.DIGITS
+            }
+
+            val factory = remember(source) {
                 TrainingViewModelFactory(
-                    alphabet = alphabet,
+                    source = source,
                     repository = trainingRepository,
                     statisticsRepository = statisticsRepository,
                     appSettingsRepository = appSettingsRepository
@@ -141,17 +149,39 @@ fun Navigation(
                         inclusive = false
                     )
                 },
-                onPlayClick = { game, alphabet ->
-                    when (game.type) {
+                onPlayClick = { gameType, alphabet ->
+                    when (gameType) {
                         TrainingGameType.CLASSIC -> {
-                            navController.navigate(
-                                Screen.TrainingScreen.createRoute(alphabet)
-                            ) {
-                                launchSingleTop = true
+                            alphabet?.let {
+                                navController.navigate(
+                                    Screen.TrainingScreen.createRoute(it)
+                                )
                             }
+                        }
+
+                        TrainingGameType.QCODE -> {
+                            navController.navigate(Screen.QCodeTrainingScreen.route)
                         }
                     }
                 }
+            )
+        }
+
+        composable(Screen.QCodeTrainingScreen.route) {
+            val factory = remember {
+                TrainingViewModelFactory(
+                    source = TrainingSource.Q_CODES,
+                    repository = trainingRepository,
+                    statisticsRepository = statisticsRepository,
+                    appSettingsRepository = appSettingsRepository
+                )
+            }
+
+            val qCodeViewModel: TrainingViewModel = viewModel(factory = factory)
+
+            QCodeTrainingScreen(
+                onBackClick = { navController.popBackStack() },
+                viewModel = qCodeViewModel
             )
         }
     }

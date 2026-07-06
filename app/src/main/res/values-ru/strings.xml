@@ -49,4 +49,14 @@
     <string name="classic_training">Алфавит и цифры</string>
     <string name="abbreviations_training">Аббревиатуры</string>
     <string name="play">Играть</string>
+    <string name="q_code_training">Практика Q-кодов</string>
+    <string name="which_q_code">Какой это Q-код?</string>
+    <string name="show_hint">Показать подсказку</string>
+    <string name="hide_hint">Скрыть подсказку</string>
+    <string name="q_code_result">Правильных ответов: %1$d из %2$d</string>
+    <string name="training_errors">Ошибок: %1$d</string>
+    <string name="latin">Латиница</string>
+    <string name="cyrillic">Кириллица</string>
+    <string name="digits">Цифры</string>
+    <string name="q_codes">Q-коды</string>
 </resources>

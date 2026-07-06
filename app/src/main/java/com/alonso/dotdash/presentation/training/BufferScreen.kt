@@ -3,15 +3,20 @@ package com.alonso.dotdash.presentation.training
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material3.Button
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,7 +44,7 @@ import com.alonso.dotdash.domain.model.TrainingTypes
 @Composable
 fun BufferScreen(
     onBackClick: () -> Unit,
-    onPlayClick: (TrainingTypes, MorseAlphabet) -> Unit
+    onPlayClick: (TrainingGameType, MorseAlphabet?) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -90,7 +95,7 @@ private const val BUFFER_COLUMN_SIZE = 1
 @Composable
 fun BufferGrid(
     games: List<TrainingTypes>,
-    onPlayClick: (TrainingTypes, MorseAlphabet) -> Unit,
+    onPlayClick: (TrainingGameType, MorseAlphabet?) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -104,23 +109,54 @@ fun BufferGrid(
             items = games,
             key = { it.type }
         ) { game ->
-            var selectedAlphabet by rememberSaveable(game.type.name) {
-                mutableStateOf(game.alphabets.first())
-            }
+            when (game.type) {
+                TrainingGameType.CLASSIC -> {
+                    var selectedAlphabet by rememberSaveable(game.type.name) {
+                        mutableStateOf(game.alphabets.first())
+                    }
 
-            TrainingTypeCard(
-                title = when (game.type) {
-                    TrainingGameType.CLASSIC ->
-                        stringResource(R.string.classic_training)
-                },
-                alphabets = game.alphabets,
-                selectedAlphabet = selectedAlphabet,
-                onAlphabetSelected = { selectedAlphabet = it },
-                onPlayClick = {
-                    onPlayClick(game, selectedAlphabet)
-                },
-                modifier = Modifier.fillMaxWidth()
+                    TrainingTypeCard(
+                        title = stringResource(R.string.classic_training),
+                        alphabets = game.alphabets,
+                        selectedAlphabet = selectedAlphabet,
+                        onAlphabetSelected = { selectedAlphabet = it },
+                        onPlayClick = {
+                            onPlayClick(game.type, selectedAlphabet)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                TrainingGameType.QCODE -> {
+                    QCodeTrainingCard {
+                        onPlayClick(game.type, null)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun QCodeTrainingCard(onPlayClick: () -> Unit) {
+    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.q_code_training),
+                style = MaterialTheme.typography.titleMedium
             )
+
+            Button(
+                onClick = onPlayClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.play))
+            }
         }
     }
 }
