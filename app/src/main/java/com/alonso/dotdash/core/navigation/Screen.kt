@@ -16,4 +16,5 @@ sealed class Screen(val route: String) {
     }
 
     object BufferScreen : Screen("buffer_screen")
+    object QCodeTrainingScreen : Screen("q_code_training_screen")
 }

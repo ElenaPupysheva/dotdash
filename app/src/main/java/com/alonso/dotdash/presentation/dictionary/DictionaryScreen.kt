@@ -46,6 +46,8 @@ import com.alonso.dotdash.core.common.ToneBeepPlayer
 import com.alonso.dotdash.core.ui.DictionaryCard
 import com.alonso.dotdash.data.local.LocalMorseDataSource
 import com.alonso.dotdash.domain.model.MorseSymbol
+import com.alonso.dotdash.domain.model.SymbolCategory
+import com.alonso.dotdash.presentation.training.qcode.QCodeDictionaryCard
 import com.alonso.dotdash.ui.theme.surfaceContainerLowLight
 
 private const val DICTIONARY_COLUMN_SIZE = 2
@@ -63,11 +65,13 @@ fun DictionaryScreen(
     val engItems = LocalMorseDataSource.englishSymbols
     val rusItems = LocalMorseDataSource.russianSymbols
     val digItems = LocalMorseDataSource.digitsSymbols
+    val qCodeItems = LocalMorseDataSource.qcodeSymbols
 
     val tabs = listOf(
         DictionaryTabUi(title = "Латиница", count = engItems.size),
         DictionaryTabUi(title = "Кириллица", count = rusItems.size),
-        DictionaryTabUi(title = "Цифры", count = digItems.size)
+        DictionaryTabUi(title = "Цифры", count = digItems.size),
+        DictionaryTabUi(stringResource(R.string.q_codes), qCodeItems.size)
     )
 
     val soundPlayer = remember { ToneBeepPlayer() }
@@ -100,7 +104,8 @@ fun DictionaryScreen(
     val sourceItems = when (selectedTabIndex) {
         0 -> engItems
         1 -> rusItems
-        else -> digItems
+        2 -> digItems
+        else -> qCodeItems
     }
 
     val normalizedQuery = searchQuery.text.trim()
@@ -110,7 +115,11 @@ fun DictionaryScreen(
         } else {
             sourceItems.filter { item ->
                 item.symbol.contains(normalizedQuery, ignoreCase = true) ||
-                        item.morseCode.contains(normalizedQuery)
+                        item.morseCode.contains(normalizedQuery) ||
+                        item.meaning
+                            ?.current()
+                            .orEmpty()
+                            .contains(normalizedQuery, ignoreCase = true)
             }
         }
     }
@@ -183,6 +192,7 @@ fun DictionaryScreen(
                 dictionaryItems = filteredItems,
                 playingItemId = playingItemId,
                 onPlayClick = ::handlePlayClick,
+                isQCodeTab = selectedTabIndex == 3,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -307,22 +317,36 @@ fun DictionaryGrid(
     dictionaryItems: List<MorseSymbol>,
     playingItemId: String?,
     onPlayClick: (MorseSymbol) -> Unit,
+    isQCodeTab: Boolean,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         modifier = modifier,
-        columns = GridCells.Fixed(DICTIONARY_COLUMN_SIZE),
+        columns = GridCells.Fixed(
+            if (isQCodeTab) 1 else DICTIONARY_COLUMN_SIZE
+        ),
         contentPadding = PaddingValues(bottom = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(dictionaryItems, key = { it.id }) { item ->
-            DictionaryCard(
-                symbol = item.symbol,
-                morseCode = item.morseCode,
-                isPlaying = playingItemId == item.id,
-                onPlayClick = { onPlayClick(item) }
-            )
+        items(
+            items = dictionaryItems,
+            key = { it.id }
+        ) { item ->
+            if (item.category == SymbolCategory.QCODE) {
+                QCodeDictionaryCard(
+                    item = item,
+                    isPlaying = playingItemId == item.id,
+                    onPlayClick = { onPlayClick(item) }
+                )
+            } else {
+                DictionaryCard(
+                    symbol = item.symbol,
+                    morseCode = item.morseCode,
+                    isPlaying = playingItemId == item.id,
+                    onPlayClick = { onPlayClick(item) }
+                )
+            }
         }
     }
 }

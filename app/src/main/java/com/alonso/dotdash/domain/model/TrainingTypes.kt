@@ -1,7 +1,8 @@
 package com.alonso.dotdash.domain.model
 
 enum class TrainingGameType {
-    CLASSIC
+    CLASSIC,
+    QCODE
 }
 
 data class TrainingTypes(
@@ -13,6 +14,10 @@ data class TrainingTypes(
             TrainingTypes(
                 type = TrainingGameType.CLASSIC,
                 alphabets = MorseAlphabet.entries
+            ),
+            TrainingTypes(
+                type = TrainingGameType.QCODE,
+                alphabets = emptyList()
             )
         )
     }

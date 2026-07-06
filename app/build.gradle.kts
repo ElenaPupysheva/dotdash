@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.alonso.dotdash"
     compileSdk {
-        version = release(36) {
+        version = release(37) {
             minorApiLevel = 1
         }
     }
@@ -15,9 +15,9 @@ android {
     defaultConfig {
         applicationId = "com.alonso.dotdash"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
+        targetSdk = 37
+        versionCode = 5
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -45,6 +45,7 @@ detekt {
 }
 
 dependencies {
+    implementation(libs.androidx.compose.runtime)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -53,6 +54,7 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.material3)
     implementation(libs.androidx.ui)
     implementation(libs.androidx.work.runtime.ktx)
     testImplementation(libs.junit)

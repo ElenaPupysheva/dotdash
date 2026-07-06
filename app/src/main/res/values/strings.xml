@@ -49,4 +49,17 @@
     <string name="classic_training">Alphabet and numbers</string>
     <string name="abbreviations_training">Abbreviation</string>
     <string name="play">Play</string>
+    <string name="q_code_training">Q-code practice</string>
+    <string name="which_q_code">Which Q-code is this?</string>
+    <string name="show_hint">Show hint</string>
+    <string name="hide_hint">Hide hint</string>
+    <string name="q_code_result">%1$d correct answers out of %2$d</string>
+    <string name="training_errors">Mistakes: %1$d</string>
+    <string name="latin">Latin</string>
+    <string name="cyrillic">Cyrillic</string>
+    <string name="digits">Digits</string>
+    <string name="q_codes">Q-codes</string>
+    <string name="show_hint_count">Show hint (%1$d)</string>
+    <string name="no_hints_title">No hints left</string>
+    <string name="no_hints_message">Free hints will be restored tomorrow.</string>
 </resources>

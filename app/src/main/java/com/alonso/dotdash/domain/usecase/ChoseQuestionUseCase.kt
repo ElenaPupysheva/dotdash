@@ -40,3 +40,25 @@ fun createQuizQuestions(alphabet: MorseAlphabet): MutableList<TrainingQuestion> 
 
     return questions
 }
+
+fun createQCodeQuestions(): MutableList<TrainingQuestion> {
+    return LocalMorseDataSource.qcodeSymbols
+        .shuffled()
+        .take(QUIZSIZE)
+        .map { currentSymbol ->
+            val wrongAnswers = LocalMorseDataSource.qcodeSymbols
+                .filter { it.id != currentSymbol.id }
+                .shuffled()
+                .take(WRONGSIZE)
+                .map { it.symbol }
+
+            TrainingQuestion(
+                morseCode = currentSymbol.morseCode,
+                correctAnswer = currentSymbol.symbol,
+                options = (wrongAnswers + currentSymbol.symbol).shuffled(),
+                hint = currentSymbol.meaning?.current()
+            )
+        }
+        .toMutableList()
+}
+
