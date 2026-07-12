@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.BarChart
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CardDefaults
@@ -71,6 +72,7 @@ fun HomeScreen(
     viewModel: HomeViewModel
 ) {
     val statistics by viewModel.statistics.collectAsState()
+    val hintsRemaining by viewModel.hintsRemaining.collectAsState()
 
     val menuItems = listOf(
         HomeMenuItemUi(
@@ -144,6 +146,7 @@ fun HomeScreen(
                 title = stringResource(R.string.aim_txt),
                 progressText = progressText,
                 progress = progressValue,
+                hintsRemaining = hintsRemaining,
                 buttonText = stringResource(R.string.continue_txt),
                 onClick = {
                     navController.navigate(Screen.BufferScreen.route)
@@ -200,6 +203,7 @@ private fun HomeHeroCard(
     title: String,
     progressText: String,
     progress: Float,
+    hintsRemaining: Int,
     buttonText: String,
     onClick: () -> Unit
 ) {
@@ -242,11 +246,19 @@ private fun HomeHeroCard(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                text = title.uppercase(),
-                style = MaterialTheme.typography.labelLarge,
-                color = Color.White.copy(alpha = 0.92f)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title.uppercase(),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = Color.White.copy(alpha = 0.92f)
+                )
+
+                HintCounterBadge(hintsRemaining = hintsRemaining)
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -296,6 +308,40 @@ private fun HomeHeroCard(
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun HintCounterBadge(
+    hintsRemaining: Int
+) {
+    Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = Color.White.copy(alpha = 0.18f)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Lightbulb,
+                contentDescription = null,
+                tint = Color.White,
+                modifier = Modifier.size(17.dp)
+            )
+
+            Text(
+                text = if (hintsRemaining == 0) {
+                    "0  🎬 +3"
+                } else {
+                    hintsRemaining.toString()
+                },
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
         }
     }
 }

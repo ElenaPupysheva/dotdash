@@ -67,7 +67,12 @@ fun Navigation(
 
     NavHost(navController = navController, startDestination = Screen.HomeScreen.route) {
         composable(route = Screen.HomeScreen.route) {
-            val factory = remember { HomeViewModelFactory(statisticsRepository) }
+            val factory = remember {
+                HomeViewModelFactory(
+                    repository = statisticsRepository,
+                    hintAllowanceDataStore = hintAllowanceDataStore
+                )
+            }
             val homeViewModel: HomeViewModel = viewModel(factory = factory)
 
             HomeScreen(
@@ -166,49 +171,46 @@ fun Navigation(
                             MorseAlphabet.DIGITS -> TrainingSource.DIGITS
                             null -> TrainingSource.RUSSIAN
                         }
-
                         TrainingGameType.QCODE -> TrainingSource.Q_CODES
                         TrainingGameType.GREETINGS -> TrainingSource.GREETINGS
                         TrainingGameType.FREE_WRITING -> null
                     }
-                    when {
-                        gameType == TrainingGameType.FREE_WRITING -> {
-                            navController.navigate(Screen.FreeWritingScreen.route)
-                        }
+                    if (gameType == TrainingGameType.FREE_WRITING) {
+                        navController.navigate(Screen.FreeWritingScreen.route)
+                    } else if (difficulty == TrainingDifficulty.HARD) {
+                        navController.navigate(
+                            Screen.SourceTrainingScreen.createRoute(source!!.name, difficulty.name)
+                        )
+                    } else {
+                        when (gameType) {
+                            TrainingGameType.CLASSIC -> {
+                                alphabet?.let {
+                                    navController.navigate(
+                                        Screen.TrainingScreen.createRoute(it)
+                                    )
+                                }
+                            }
 
-                        difficulty == TrainingDifficulty.HARD -> {
-                            navController.navigate(
-                                Screen.SourceTrainingScreen.createRoute(
-                                    source = requireNotNull(source).name,
-                                    difficulty = difficulty.name
-                                )
-                            )
-                        }
+                            TrainingGameType.QCODE -> {
+                                navController.navigate(Screen.QCodeTrainingScreen.route)
+                            }
 
-                        gameType == TrainingGameType.CLASSIC -> {
-                            alphabet?.let {
+                            TrainingGameType.GREETINGS -> {
                                 navController.navigate(
-                                    Screen.TrainingScreen.createRoute(it)
+                                    Screen.SourceTrainingScreen.createRoute(
+                                        TrainingSource.GREETINGS.name,
+                                        difficulty.name
+                                    )
                                 )
                             }
-                        }
 
-                        gameType == TrainingGameType.QCODE -> {
-                            navController.navigate(Screen.QCodeTrainingScreen.route)
-                        }
-
-                        gameType == TrainingGameType.GREETINGS -> {
-                            navController.navigate(
-                                Screen.SourceTrainingScreen.createRoute(
-                                    source = TrainingSource.GREETINGS.name,
-                                    difficulty = difficulty.name
-                                )
-                            )
+                            TrainingGameType.FREE_WRITING -> Unit
                         }
                     }
                 }
             )
         }
+
         composable(
             route = Screen.SourceTrainingScreen.route,
             arguments = listOf(
@@ -233,12 +235,33 @@ fun Navigation(
                 )
             }
             val trainingViewModel: TrainingViewModel = viewModel(factory = factory)
-            if (difficulty == TrainingDifficulty.HARD) {
-                HardTrainingScreen({ navController.popBackStack() }, trainingViewModel)
+            val hintViewModel = if (
+                source == TrainingSource.GREETINGS ||
+                source == TrainingSource.Q_CODES
+            ) {
+                val hintFactory = remember(hintAllowanceDataStore) {
+                    HintAllowanceViewModelFactory(hintAllowanceDataStore)
+                }
+                viewModel<HintAllowanceViewModel>(factory = hintFactory)
             } else {
-                TrainingScreen({ navController.popBackStack() }, trainingViewModel)
+                null
+            }
+
+            if (difficulty == TrainingDifficulty.HARD) {
+                HardTrainingScreen(
+                    onBackClick = { navController.popBackStack() },
+                    viewModel = trainingViewModel,
+                    hintViewModel = hintViewModel
+                )
+            } else {
+                TrainingScreen(
+                    onBackClick = { navController.popBackStack() },
+                    viewModel = trainingViewModel,
+                    hintViewModel = hintViewModel
+                )
             }
         }
+
         composable(Screen.FreeWritingScreen.route) {
             FreeWritingScreen { navController.popBackStack() }
         }

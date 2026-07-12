@@ -317,10 +317,8 @@ fun QCodeTrainingContent(
                         if (showHint) {
                             stringResource(R.string.hide_hint)
                         } else {
-                            stringResource(
-                                R.string.show_hint_count,
-                                hintsRemaining
-                            )
+
+                            qCodeHintButtonText(hintsRemaining)
                         }
                     )
                 }
@@ -410,5 +408,15 @@ fun QCodeTrainingContent(
                 }
             }
         )
+    }
+}
+
+@Composable
+private fun qCodeHintButtonText(hintsRemaining: Int): String {
+    val baseText = stringResource(R.string.show_hint_count, hintsRemaining)
+    return if (hintsRemaining == 0) {
+        "$baseText  🎬 +3"
+    } else {
+        baseText
     }
 }

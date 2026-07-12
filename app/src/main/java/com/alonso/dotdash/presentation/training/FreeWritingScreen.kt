@@ -100,8 +100,10 @@ fun FreeWritingScreen(onBackClick: () -> Unit) {
                 )
             }
             MorseInputPad(
+                value = input,
                 onAppend = { input += it },
-                onDelete = { if (input.isNotEmpty()) input = input.dropLast(1) })
+                onDelete = { if (input.isNotEmpty()) input = input.dropLast(1) }
+            )
             OutlinedButton(
                 { input = "" },
                 Modifier.fillMaxWidth()

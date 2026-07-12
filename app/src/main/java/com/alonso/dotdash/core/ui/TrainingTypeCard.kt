@@ -48,7 +48,9 @@ fun TrainingTypeCard(
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
@@ -72,6 +74,8 @@ fun TrainingTypeCard(
                     }
                 }
             }
+
+            DifficultySelector(selectedDifficulty, onDifficultySelected)
 
             Button(
                 onClick = onPlayClick,
@@ -101,7 +105,17 @@ fun DifficultySelector(
                 onClick = { onSelected(difficulty) },
                 shape = SegmentedButtonDefaults.itemShape(index, TrainingDifficulty.entries.size)
             ) {
-                Text(stringResource(if (difficulty == TrainingDifficulty.NORMAL) R.string.normal_mode else R.string.hard_mode))
+                Text(
+                    text = stringResource(
+                        if (difficulty == TrainingDifficulty.NORMAL) {
+                            R.string.normal_mode
+                        } else {
+                            R.string.hard_mode
+                        }
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    maxLines = 1
+                )
             }
         }
     }

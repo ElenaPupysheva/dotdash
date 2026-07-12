@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -92,7 +93,8 @@ fun BufferScreen(
     }
 }
 
-private const val BUFFER_COLUMN_SIZE = 1
+private val TRAINING_CARD_MIN_WIDTH = 320.dp
+private val TRAINING_CARD_MIN_HEIGHT = 180.dp
 
 @Composable
 fun BufferGrid(
@@ -102,7 +104,7 @@ fun BufferGrid(
 ) {
     LazyVerticalGrid(
         modifier = modifier,
-        columns = GridCells.Fixed(BUFFER_COLUMN_SIZE),
+        columns = GridCells.Adaptive(minSize = TRAINING_CARD_MIN_WIDTH),
         contentPadding = PaddingValues(bottom = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -130,7 +132,9 @@ fun BufferGrid(
                         onPlayClick = {
                             onPlayClick(game.type, selectedAlphabet, difficulty)
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .defaultMinSize(minHeight = TRAINING_CARD_MIN_HEIGHT)
                     )
                 }
 
@@ -159,14 +163,21 @@ fun BufferGrid(
 @Composable
 private fun ModeTrainingCard(title: String, onPlayClick: (TrainingDifficulty) -> Unit) {
     var difficulty by rememberSaveable(title) { mutableStateOf(TrainingDifficulty.NORMAL) }
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = TRAINING_CARD_MIN_HEIGHT)
+    ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium,
+                maxLines = 2
             )
 
             DifficultySelector(difficulty) { difficulty = it }
@@ -186,9 +197,18 @@ private fun ModeTrainingCard(title: String, onPlayClick: (TrainingDifficulty) ->
 
 @Composable
 private fun SimpleTrainingCard(title: String, onPlayClick: () -> Unit) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium)
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 132.dp)
+    ) {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 2)
             Button(onClick = onPlayClick, modifier = Modifier.fillMaxWidth()) {
                 Icon(Icons.Default.PlayArrow, contentDescription = null)
                 Spacer(Modifier.width(8.dp))

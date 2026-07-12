@@ -1,6 +1,7 @@
 package com.alonso.dotdash.presentation.dictionary
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -66,12 +69,14 @@ fun DictionaryScreen(
     val rusItems = LocalMorseDataSource.russianSymbols
     val digItems = LocalMorseDataSource.digitsSymbols
     val qCodeItems = LocalMorseDataSource.qcodeSymbols
+    val greetingsItems = LocalMorseDataSource.greetingsSymbols
 
     val tabs = listOf(
         DictionaryTabUi(title = "Латиница", count = engItems.size),
         DictionaryTabUi(title = "Кириллица", count = rusItems.size),
         DictionaryTabUi(title = "Цифры", count = digItems.size),
-        DictionaryTabUi(stringResource(R.string.q_codes), qCodeItems.size)
+        DictionaryTabUi(stringResource(R.string.q_codes), qCodeItems.size),
+        DictionaryTabUi(stringResource(R.string.greetings_training), greetingsItems.size)
     )
 
     val soundPlayer = remember { ToneBeepPlayer() }
@@ -105,7 +110,8 @@ fun DictionaryScreen(
         0 -> engItems
         1 -> rusItems
         2 -> digItems
-        else -> qCodeItems
+        3 -> qCodeItems
+        else -> greetingsItems
     }
 
     val normalizedQuery = searchQuery.text.trim()
@@ -192,7 +198,7 @@ fun DictionaryScreen(
                 dictionaryItems = filteredItems,
                 playingItemId = playingItemId,
                 onPlayClick = ::handlePlayClick,
-                isQCodeTab = selectedTabIndex == 3,
+                isDescriptionTab = selectedTabIndex >= 3,
                 modifier = Modifier.fillMaxSize()
             )
         }
@@ -260,7 +266,7 @@ private fun DictionarySegmentedTabs(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
                 .padding(4.dp),
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
@@ -276,7 +282,7 @@ private fun DictionarySegmentedTabs(
                     },
                     shadowElevation = if (selected) 2.dp else 0.dp,
                     modifier = Modifier
-                        .weight(1f)
+                        .widthIn(min = 104.dp)
                         .height(56.dp)
                         .clickable { onTabSelected(index) }
                 ) {
@@ -317,13 +323,13 @@ fun DictionaryGrid(
     dictionaryItems: List<MorseSymbol>,
     playingItemId: String?,
     onPlayClick: (MorseSymbol) -> Unit,
-    isQCodeTab: Boolean,
+    isDescriptionTab: Boolean,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
         modifier = modifier,
         columns = GridCells.Fixed(
-            if (isQCodeTab) 1 else DICTIONARY_COLUMN_SIZE
+            if (isDescriptionTab) 1 else DICTIONARY_COLUMN_SIZE
         ),
         contentPadding = PaddingValues(bottom = 24.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -333,7 +339,7 @@ fun DictionaryGrid(
             items = dictionaryItems,
             key = { it.id }
         ) { item ->
-            if (item.category == SymbolCategory.QCODE) {
+            if (item.category == SymbolCategory.QCODE || item.category == SymbolCategory.GREETINGS) {
                 QCodeDictionaryCard(
                     item = item,
                     isPlaying = playingItemId == item.id,

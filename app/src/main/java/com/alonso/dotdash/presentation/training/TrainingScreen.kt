@@ -15,6 +15,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
+import androidx.compose.material.icons.outlined.Lightbulb
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -25,19 +27,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
@@ -45,6 +53,8 @@ import com.alonso.dotdash.core.common.MorsePlayer
 import com.alonso.dotdash.core.common.ToneBeepPlayer
 import com.alonso.dotdash.core.ui.QuizButton
 import com.alonso.dotdash.core.ui.TrainingCard
+import com.alonso.dotdash.presentation.training.qcode.HintAllowanceViewModel
+import com.alonso.dotdash.presentation.training.qcode.HintEvent
 import com.alonso.dotdash.ui.theme.SuccessGreen
 
 private const val TRAINING_TOTAL_QUESTIONS = 10
@@ -53,7 +63,8 @@ private const val TRAINING_TOTAL_QUESTIONS = 10
 @Composable
 fun TrainingScreen(
     onBackClick: () -> Unit,
-    viewModel: TrainingViewModel
+    viewModel: TrainingViewModel,
+    hintViewModel: HintAllowanceViewModel? = null
 ) {
     val currentQuestion by viewModel.currentQuestion.collectAsState()
     val isAnswerCorrect by viewModel.isAnswerCorrect.collectAsState()
@@ -62,14 +73,33 @@ fun TrainingScreen(
     val correctAnswersCount by viewModel.correctAnswersCount.collectAsState()
     val answeredQuestionsCount by viewModel.answeredQuestionsCount.collectAsState()
     val appSettings by viewModel.appSettings.collectAsState()
+    val hintsRemaining = hintViewModel?.totalRemaining?.collectAsState()?.value ?: 0
     val haptic = LocalHapticFeedback.current
     val soundPlayer = remember { ToneBeepPlayer() }
     val morsePlayer = remember { MorsePlayer(soundPlayer) }
+    var showHint by rememberSaveable(currentQuestion?.morseCode) { mutableStateOf(false) }
+    var hintUnlocked by rememberSaveable(currentQuestion?.morseCode) { mutableStateOf(false) }
+    var limitReached by rememberSaveable { mutableStateOf(false) }
 
     DisposableEffect(Unit) {
         onDispose {
             morsePlayer.stop()
             morsePlayer.release()
+        }
+    }
+
+    LaunchedEffect(hintViewModel, currentQuestion?.morseCode) {
+        hintViewModel?.events?.collect { event ->
+            when (event) {
+                HintEvent.Granted -> {
+                    hintUnlocked = true
+                    showHint = true
+                }
+
+                HintEvent.LimitReached -> {
+                    limitReached = true
+                }
+            }
         }
     }
 
@@ -178,6 +208,47 @@ fun TrainingScreen(
                 }
 
                 Spacer(modifier = Modifier.height(20.dp))
+
+                question.hint?.let { hint ->
+                    TextButton(
+                        onClick = {
+                            when {
+                                showHint -> showHint = false
+                                hintUnlocked || hintViewModel == null -> {
+                                    hintUnlocked = true
+                                    showHint = true
+                                }
+
+                                else -> hintViewModel.requestHint()
+                            }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Lightbulb,
+                            contentDescription = null
+                        )
+                        Spacer(modifier = Modifier.size(8.dp))
+                        Text(
+                            if (showHint) {
+                                stringResource(R.string.hide_hint)
+                            } else if (hintViewModel != null) {
+                                hintButtonText(hintsRemaining)
+                            } else {
+                                stringResource(R.string.show_hint)
+                            }
+                        )
+                    }
+                    if (showHint) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = hint,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
 
                 if (showResult) {
                     Text(
@@ -339,5 +410,32 @@ fun TrainingScreen(
                 }
             }
         }
+    }
+
+    if (limitReached) {
+        AlertDialog(
+            onDismissRequest = { limitReached = false },
+            title = {
+                Text(stringResource(R.string.no_hints_title))
+            },
+            text = {
+                Text(stringResource(R.string.no_hints_message))
+            },
+            confirmButton = {
+                TextButton(onClick = { limitReached = false }) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun hintButtonText(hintsRemaining: Int): String {
+    val baseText = stringResource(R.string.show_hint_count, hintsRemaining)
+    return if (hintsRemaining == 0) {
+        "$baseText  🎬 +3"
+    } else {
+        baseText
     }
 }
