@@ -62,6 +62,10 @@
     <string name="show_hint_count">Show hint (%1$d)</string>
     <string name="no_hints_title">No hints left</string>
     <string name="no_hints_message">Free hints will be restored tomorrow.</string>
+    <string name="rewarded_hints_message">You can get 3 more hints by watching a short ad.</string>
+    <string name="watch_ad_for_hints">Watch ad</string>
+    <string name="later">Later</string>
+    <string name="ad_unavailable_message">Ad is unavailable right now. Please try again later.</string>
     <string name="normal_mode">Normal</string>
     <string name="hard_mode">Hard</string>
     <string name="greetings_training">Greetings</string>

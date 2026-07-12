@@ -38,12 +38,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
+import com.alonso.dotdash.core.ads.RewardedHintsAd
+import com.alonso.dotdash.core.common.findActivity
 import com.alonso.dotdash.presentation.training.qcode.HintAllowanceViewModel
 import com.alonso.dotdash.presentation.training.qcode.HintEvent
 import com.alonso.dotdash.ui.theme.SuccessGreen
@@ -61,11 +64,15 @@ fun HardTrainingScreen(
     val answered by viewModel.answeredQuestionsCount.collectAsState()
     val correctCount by viewModel.correctAnswersCount.collectAsState()
     val hintsRemaining = hintViewModel?.totalRemaining?.collectAsState()?.value ?: 0
+    val activity = LocalContext.current.findActivity()
+    val rewardedHintsAd = remember(activity) {
+        activity?.let(::RewardedHintsAd)
+    }
     var input by remember(question) { mutableStateOf("") }
     var showHint by rememberSaveable(question?.morseCode) { mutableStateOf(false) }
     var hintUnlocked by rememberSaveable(question?.morseCode) { mutableStateOf(false) }
     var limitReached by rememberSaveable { mutableStateOf(false) }
-
+    var adUnavailable by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(hintViewModel, question?.morseCode) {
         hintViewModel?.events?.collect { event ->
             when (event) {
@@ -229,16 +236,52 @@ fun HardTrainingScreen(
 
     if (limitReached) {
         AlertDialog(
-            onDismissRequest = { limitReached = false },
+            onDismissRequest = {
+                limitReached = false
+                adUnavailable = false
+            },
             title = {
                 Text(stringResource(R.string.no_hints_title))
             },
             text = {
-                Text(stringResource(R.string.no_hints_message))
+                Text(
+                    if (adUnavailable) {
+                        stringResource(R.string.ad_unavailable_message)
+                    } else {
+                        "${stringResource(R.string.no_hints_message)}\n\n${stringResource(R.string.rewarded_hints_message)}"
+                    }
+                )
             },
             confirmButton = {
-                TextButton(onClick = { limitReached = false }) {
-                    Text(stringResource(android.R.string.ok))
+                TextButton(
+                    onClick = {
+                        adUnavailable = false
+                        if (rewardedHintsAd == null || hintViewModel == null) {
+                            adUnavailable = true
+                        } else {
+                            rewardedHintsAd.loadAndShow(
+                                onReward = {
+                                    limitReached = false
+                                    hintViewModel.addRewardedHintsAndRequest()
+                                },
+                                onUnavailable = {
+                                    adUnavailable = true
+                                }
+                            )
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.watch_ad_for_hints))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        limitReached = false
+                        adUnavailable = false
+                    }
+                ) {
+                    Text(stringResource(R.string.later))
                 }
             }
         )

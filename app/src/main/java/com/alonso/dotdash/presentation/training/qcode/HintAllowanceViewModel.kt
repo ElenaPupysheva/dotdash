@@ -58,4 +58,24 @@ class HintAllowanceViewModel(
             dataStore.addRewardedHints(amount)
         }
     }
+
+    fun addRewardedHintsAndRequest(amount: Int = 3) {
+        if (requestInProgress) return
+        requestInProgress = true
+
+        viewModelScope.launch {
+            try {
+                dataStore.addRewardedHints(amount)
+                _events.emit(
+                    if (dataStore.consumeHint()) {
+                        HintEvent.Granted
+                    } else {
+                        HintEvent.LimitReached
+                    }
+                )
+            } finally {
+                requestInProgress = false
+            }
+        }
+    }
 }

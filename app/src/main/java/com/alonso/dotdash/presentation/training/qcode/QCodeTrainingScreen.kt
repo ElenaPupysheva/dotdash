@@ -40,12 +40,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
+import com.alonso.dotdash.core.ads.RewardedHintsAd
 import com.alonso.dotdash.core.common.MorsePlayer
 import com.alonso.dotdash.core.common.ToneBeepPlayer
+import com.alonso.dotdash.core.common.findActivity
 import com.alonso.dotdash.core.ui.QuizButton
 import com.alonso.dotdash.core.ui.TrainingCard
 import com.alonso.dotdash.domain.model.TrainingQuestion
@@ -78,6 +81,7 @@ fun QCodeTrainingScreen(
             hintsRemaining = hintsRemaining,
             hintEvents = hintViewModel.events,
             onHintRequested = hintViewModel::requestHint,
+            onRewardedHintRequested = hintViewModel::addRewardedHintsAndRequest,
             onBackClick = onBackClick,
             onAnswerSelected = viewModel::onAnswerSelected,
             onNextQuestion = viewModel::onNextQuestion
@@ -206,6 +210,7 @@ fun QCodeTrainingContent(
     hintsRemaining: Int,
     hintEvents: Flow<HintEvent>,
     onHintRequested: () -> Unit,
+    onRewardedHintRequested: () -> Unit,
     onBackClick: () -> Unit,
     onAnswerSelected: (String) -> Unit,
     onNextQuestion: () -> Unit
@@ -218,6 +223,13 @@ fun QCodeTrainingContent(
     }
     var limitReached by rememberSaveable(question.morseCode) {
         mutableStateOf(false)
+    }
+    var adUnavailable by rememberSaveable(question.morseCode) {
+        mutableStateOf(false)
+    }
+    val activity = LocalContext.current.findActivity()
+    val rewardedHintsAd = remember(activity) {
+        activity?.let(::RewardedHintsAd)
     }
 
     LaunchedEffect(question.morseCode, hintEvents) {
@@ -395,16 +407,52 @@ fun QCodeTrainingContent(
     }
     if (limitReached) {
         AlertDialog(
-            onDismissRequest = { limitReached = false },
+            onDismissRequest = {
+                limitReached = false
+                adUnavailable = false
+            },
             title = {
                 Text(stringResource(R.string.no_hints_title))
             },
             text = {
-                Text(stringResource(R.string.no_hints_message))
+                Text(
+                    if (adUnavailable) {
+                        stringResource(R.string.ad_unavailable_message)
+                    } else {
+                        "${stringResource(R.string.no_hints_message)}\n\n${stringResource(R.string.rewarded_hints_message)}"
+                    }
+                )
             },
             confirmButton = {
-                TextButton(onClick = { limitReached = false }) {
-                    Text(stringResource(android.R.string.ok))
+                TextButton(
+                    onClick = {
+                        adUnavailable = false
+                        if (rewardedHintsAd == null) {
+                            adUnavailable = true
+                        } else {
+                            rewardedHintsAd.loadAndShow(
+                                onReward = {
+                                    limitReached = false
+                                    onRewardedHintRequested()
+                                },
+                                onUnavailable = {
+                                    adUnavailable = true
+                                }
+                            )
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.watch_ad_for_hints))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        limitReached = false
+                        adUnavailable = false
+                    }
+                ) {
+                    Text(stringResource(R.string.later))
                 }
             }
         )
