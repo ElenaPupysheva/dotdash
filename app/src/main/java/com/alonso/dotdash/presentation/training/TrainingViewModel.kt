@@ -22,7 +22,6 @@ class TrainingViewModel(
     private val statisticsRepository: StatisticsRepository,
     appSettingsRepository: AppSettingsRepository
 ) : ViewModel() {
-
     private val _currentQuestion = MutableStateFlow<TrainingQuestion?>(null)
     val currentQuestion = _currentQuestion.asStateFlow()
 
@@ -89,6 +88,24 @@ class TrainingViewModel(
             }
         }
     }
+
+    fun onMorseAnswerSubmitted(answer: String) {
+        if (_showResult.value) return
+        val expected = _currentQuestion.value?.morseCode ?: return
+        val isCorrect = normalizeMorse(answer) == normalizeMorse(expected)
+
+        _isAnswerCorrect.value = isCorrect
+        _showResult.value = true
+        _answeredQuestionsCount.value += 1
+        _selectedAnswer.value = answer
+        if (isCorrect) {
+            _correctAnswersCount.value += 1
+            _currentQuestion.value?.correctAnswer?.let(sessionCorrectSymbols::add)
+        }
+    }
+
+    private fun normalizeMorse(value: String): String =
+        value.trim().replace(Regex("\\s+"), " ")
 
     fun onNextQuestion() {
         viewModelScope.launch {

@@ -62,4 +62,15 @@
     <string name="show_hint_count">Show hint (%1$d)</string>
     <string name="no_hints_title">No hints left</string>
     <string name="no_hints_message">Free hints will be restored tomorrow.</string>
+    <string name="normal_mode">Normal</string>
+    <string name="hard_mode">Hard</string>
+    <string name="greetings_training">Greetings</string>
+    <string name="enter_morse">Enter Morse code</string>
+    <string name="submit">Check</string>
+    <string name="delete">Delete</string>
+    <string name="letter_space">Letter</string>
+    <string name="word_space">Word</string>
+    <string name="clear">Clear</string>
+    <string name="your_text">Your text</string>
+    <string name="free_writing">Free writing</string>
 </resources>

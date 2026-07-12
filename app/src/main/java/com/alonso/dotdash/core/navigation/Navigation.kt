@@ -16,6 +16,7 @@ import com.alonso.dotdash.data.repository.AppSettingsRepositoryImpl
 import com.alonso.dotdash.data.repository.StatisticsRepositoryImpl
 import com.alonso.dotdash.data.repository.TrainingRepositoryImpl
 import com.alonso.dotdash.domain.model.MorseAlphabet
+import com.alonso.dotdash.domain.model.TrainingDifficulty
 import com.alonso.dotdash.domain.model.TrainingGameType
 import com.alonso.dotdash.domain.model.TrainingSource
 import com.alonso.dotdash.presentation.dictionary.DictionaryScreen
@@ -29,6 +30,8 @@ import com.alonso.dotdash.presentation.statistics.StatisticScreen
 import com.alonso.dotdash.presentation.statistics.StatisticsViewModel
 import com.alonso.dotdash.presentation.statistics.StatisticsViewModelFactory
 import com.alonso.dotdash.presentation.training.BufferScreen
+import com.alonso.dotdash.presentation.training.FreeWritingScreen
+import com.alonso.dotdash.presentation.training.HardTrainingScreen
 import com.alonso.dotdash.presentation.training.TrainingScreen
 import com.alonso.dotdash.presentation.training.TrainingViewModel
 import com.alonso.dotdash.presentation.training.TrainingViewModelFactory
@@ -155,9 +158,34 @@ fun Navigation(
                         inclusive = false
                     )
                 },
-                onPlayClick = { gameType, alphabet ->
-                    when (gameType) {
-                        TrainingGameType.CLASSIC -> {
+                onPlayClick = { gameType, alphabet, difficulty ->
+                    val source = when (gameType) {
+                        TrainingGameType.CLASSIC -> when (alphabet) {
+                            MorseAlphabet.RUS -> TrainingSource.RUSSIAN
+                            MorseAlphabet.ENG -> TrainingSource.ENGLISH
+                            MorseAlphabet.DIGITS -> TrainingSource.DIGITS
+                            null -> TrainingSource.RUSSIAN
+                        }
+
+                        TrainingGameType.QCODE -> TrainingSource.Q_CODES
+                        TrainingGameType.GREETINGS -> TrainingSource.GREETINGS
+                        TrainingGameType.FREE_WRITING -> null
+                    }
+                    when {
+                        gameType == TrainingGameType.FREE_WRITING -> {
+                            navController.navigate(Screen.FreeWritingScreen.route)
+                        }
+
+                        difficulty == TrainingDifficulty.HARD -> {
+                            navController.navigate(
+                                Screen.SourceTrainingScreen.createRoute(
+                                    source = requireNotNull(source).name,
+                                    difficulty = difficulty.name
+                                )
+                            )
+                        }
+
+                        gameType == TrainingGameType.CLASSIC -> {
                             alphabet?.let {
                                 navController.navigate(
                                     Screen.TrainingScreen.createRoute(it)
@@ -165,12 +193,54 @@ fun Navigation(
                             }
                         }
 
-                        TrainingGameType.QCODE -> {
+                        gameType == TrainingGameType.QCODE -> {
                             navController.navigate(Screen.QCodeTrainingScreen.route)
+                        }
+
+                        gameType == TrainingGameType.GREETINGS -> {
+                            navController.navigate(
+                                Screen.SourceTrainingScreen.createRoute(
+                                    source = TrainingSource.GREETINGS.name,
+                                    difficulty = difficulty.name
+                                )
+                            )
                         }
                     }
                 }
             )
+        }
+        composable(
+            route = Screen.SourceTrainingScreen.route,
+            arguments = listOf(
+                navArgument(Screen.SourceTrainingScreen.ARG_SOURCE) { type = NavType.StringType },
+                navArgument(Screen.SourceTrainingScreen.ARG_DIFFICULTY) {
+                    type = NavType.StringType
+                }
+            )
+        ) { entry ->
+            val source = TrainingSource.valueOf(
+                entry.arguments?.getString(Screen.SourceTrainingScreen.ARG_SOURCE).orEmpty()
+            )
+            val difficulty = TrainingDifficulty.valueOf(
+                entry.arguments?.getString(Screen.SourceTrainingScreen.ARG_DIFFICULTY).orEmpty()
+            )
+            val factory = remember(source) {
+                TrainingViewModelFactory(
+                    source,
+                    trainingRepository,
+                    statisticsRepository,
+                    appSettingsRepository
+                )
+            }
+            val trainingViewModel: TrainingViewModel = viewModel(factory = factory)
+            if (difficulty == TrainingDifficulty.HARD) {
+                HardTrainingScreen({ navController.popBackStack() }, trainingViewModel)
+            } else {
+                TrainingScreen({ navController.popBackStack() }, trainingViewModel)
+            }
+        }
+        composable(Screen.FreeWritingScreen.route) {
+            FreeWritingScreen { navController.popBackStack() }
         }
 
         composable(Screen.QCodeTrainingScreen.route) {

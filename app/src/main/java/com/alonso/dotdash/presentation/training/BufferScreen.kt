@@ -35,8 +35,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
+import com.alonso.dotdash.core.ui.DifficultySelector
 import com.alonso.dotdash.core.ui.TrainingTypeCard
 import com.alonso.dotdash.domain.model.MorseAlphabet
+import com.alonso.dotdash.domain.model.TrainingDifficulty
 import com.alonso.dotdash.domain.model.TrainingGameType
 import com.alonso.dotdash.domain.model.TrainingTypes
 
@@ -44,7 +46,7 @@ import com.alonso.dotdash.domain.model.TrainingTypes
 @Composable
 fun BufferScreen(
     onBackClick: () -> Unit,
-    onPlayClick: (TrainingGameType, MorseAlphabet?) -> Unit
+    onPlayClick: (TrainingGameType, MorseAlphabet?, TrainingDifficulty) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -95,7 +97,7 @@ private const val BUFFER_COLUMN_SIZE = 1
 @Composable
 fun BufferGrid(
     games: List<TrainingTypes>,
-    onPlayClick: (TrainingGameType, MorseAlphabet?) -> Unit,
+    onPlayClick: (TrainingGameType, MorseAlphabet?, TrainingDifficulty) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyVerticalGrid(
@@ -114,22 +116,39 @@ fun BufferGrid(
                     var selectedAlphabet by rememberSaveable(game.type.name) {
                         mutableStateOf(game.alphabets.first())
                     }
+                    var difficulty by rememberSaveable("${game.type.name}_difficulty") {
+                        mutableStateOf(TrainingDifficulty.NORMAL)
+                    }
 
                     TrainingTypeCard(
                         title = stringResource(R.string.classic_training),
                         alphabets = game.alphabets,
                         selectedAlphabet = selectedAlphabet,
                         onAlphabetSelected = { selectedAlphabet = it },
+                        selectedDifficulty = difficulty,
+                        onDifficultySelected = { difficulty = it },
                         onPlayClick = {
-                            onPlayClick(game.type, selectedAlphabet)
+                            onPlayClick(game.type, selectedAlphabet, difficulty)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
 
                 TrainingGameType.QCODE -> {
-                    QCodeTrainingCard {
-                        onPlayClick(game.type, null)
+                    ModeTrainingCard(stringResource(R.string.q_code_training)) { difficulty ->
+                        onPlayClick(game.type, null, difficulty)
+                    }
+                }
+
+                TrainingGameType.GREETINGS -> {
+                    ModeTrainingCard(stringResource(R.string.greetings_training)) { difficulty ->
+                        onPlayClick(game.type, null, difficulty)
+                    }
+                }
+
+                TrainingGameType.FREE_WRITING -> {
+                    SimpleTrainingCard(stringResource(R.string.free_writing)) {
+                        onPlayClick(game.type, null, TrainingDifficulty.HARD)
                     }
                 }
             }
@@ -138,19 +157,22 @@ fun BufferGrid(
 }
 
 @Composable
-private fun QCodeTrainingCard(onPlayClick: () -> Unit) {
+private fun ModeTrainingCard(title: String, onPlayClick: (TrainingDifficulty) -> Unit) {
+    var difficulty by rememberSaveable(title) { mutableStateOf(TrainingDifficulty.NORMAL) }
     ElevatedCard(modifier = Modifier.fillMaxWidth()) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                text = stringResource(R.string.q_code_training),
+                text = title,
                 style = MaterialTheme.typography.titleMedium
             )
 
+            DifficultySelector(difficulty) { difficulty = it }
+
             Button(
-                onClick = onPlayClick,
+                onClick = { onPlayClick(difficulty) },
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(Icons.Default.PlayArrow, contentDescription = null)
@@ -160,3 +182,19 @@ private fun QCodeTrainingCard(onPlayClick: () -> Unit) {
         }
     }
 }
+
+
+@Composable
+private fun SimpleTrainingCard(title: String, onPlayClick: () -> Unit) {
+    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Button(onClick = onPlayClick, modifier = Modifier.fillMaxWidth()) {
+                Icon(Icons.Default.PlayArrow, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.play))
+            }
+        }
+    }
+}
+

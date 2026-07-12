@@ -4,6 +4,7 @@ import com.alonso.dotdash.domain.model.MorseAlphabet
 import com.alonso.dotdash.domain.model.TrainingQuestion
 import com.alonso.dotdash.domain.model.TrainingSource
 import com.alonso.dotdash.domain.repository.TrainingRepository
+import com.alonso.dotdash.domain.usecase.createGreetingsQuestions
 import com.alonso.dotdash.domain.usecase.createQCodeQuestions
 import com.alonso.dotdash.domain.usecase.createQuizQuestions
 
@@ -32,7 +33,7 @@ class TrainingRepositoryImpl : TrainingRepository {
                 createQCodeQuestions()
 
             TrainingSource.GREETINGS ->
-                error("Greetings training is not implemented yet")
+                createGreetingsQuestions()
         }
 
         return currentQuiz

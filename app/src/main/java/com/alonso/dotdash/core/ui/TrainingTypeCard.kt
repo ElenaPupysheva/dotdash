@@ -26,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.alonso.dotdash.R
 import com.alonso.dotdash.domain.model.MorseAlphabet
+import com.alonso.dotdash.domain.model.TrainingDifficulty
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +35,8 @@ fun TrainingTypeCard(
     alphabets: List<MorseAlphabet>,
     selectedAlphabet: MorseAlphabet,
     onAlphabetSelected: (MorseAlphabet) -> Unit,
+    selectedDifficulty: TrainingDifficulty,
+    onDifficultySelected: (TrainingDifficulty) -> Unit,
     onPlayClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -80,6 +83,25 @@ fun TrainingTypeCard(
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(stringResource(R.string.play))
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DifficultySelector(
+    selected: TrainingDifficulty,
+    onSelected: (TrainingDifficulty) -> Unit
+) {
+    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+        TrainingDifficulty.entries.forEachIndexed { index, difficulty ->
+            SegmentedButton(
+                selected = difficulty == selected,
+                onClick = { onSelected(difficulty) },
+                shape = SegmentedButtonDefaults.itemShape(index, TrainingDifficulty.entries.size)
+            ) {
+                Text(stringResource(if (difficulty == TrainingDifficulty.NORMAL) R.string.normal_mode else R.string.hard_mode))
             }
         }
     }
