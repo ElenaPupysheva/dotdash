@@ -35,12 +35,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +50,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.alonso.dotdash.R
+import com.alonso.dotdash.core.ads.RewardedHintsAd
+import com.alonso.dotdash.core.common.findActivity
 import com.alonso.dotdash.core.navigation.Screen
 import com.alonso.dotdash.ui.theme.NavTextActiveLight
 import com.alonso.dotdash.ui.theme.SuccessGreen
@@ -73,6 +77,10 @@ fun HomeScreen(
 ) {
     val statistics by viewModel.statistics.collectAsState()
     val hintsRemaining by viewModel.hintsRemaining.collectAsState()
+    val activity = LocalContext.current.findActivity()
+    val rewardedHintsAd = remember(activity) {
+        activity?.let(::RewardedHintsAd)
+    }
 
     val menuItems = listOf(
         HomeMenuItemUi(
@@ -150,6 +158,12 @@ fun HomeScreen(
                 buttonText = stringResource(R.string.continue_txt),
                 onClick = {
                     navController.navigate(Screen.BufferScreen.route)
+                },
+                onHintsClick = {
+                    rewardedHintsAd?.loadAndShow(
+                        onReward = viewModel::addRewardedHints,
+                        onUnavailable = { }
+                    )
                 }
             )
 
@@ -205,7 +219,8 @@ private fun HomeHeroCard(
     progress: Float,
     hintsRemaining: Int,
     buttonText: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onHintsClick: () -> Unit
 ) {
     Box(
         modifier = Modifier
@@ -257,7 +272,10 @@ private fun HomeHeroCard(
                     color = Color.White.copy(alpha = 0.92f)
                 )
 
-                HintCounterBadge(hintsRemaining = hintsRemaining)
+                HintCounterBadge(
+                    hintsRemaining = hintsRemaining,
+                    onClick = onHintsClick
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -314,11 +332,13 @@ private fun HomeHeroCard(
 
 @Composable
 private fun HintCounterBadge(
-    hintsRemaining: Int
+    hintsRemaining: Int,
+    onClick: () -> Unit
 ) {
     Surface(
         shape = RoundedCornerShape(999.dp),
-        color = Color.White.copy(alpha = 0.18f)
+        color = Color.White.copy(alpha = 0.18f),
+        modifier = Modifier.clickable(enabled = hintsRemaining == 0, onClick = onClick)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),

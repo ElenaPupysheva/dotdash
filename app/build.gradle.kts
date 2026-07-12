@@ -1,9 +1,22 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.detekt)
 }
 
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use(::load)
+    }
+}
+
+val vkRewardedSlotId = localProperties
+    .getProperty("VK_REWARDED_SLOT_ID")
+    ?.takeIf { it.isNotBlank() }
+    ?: "0"
 android {
     namespace = "com.alonso.dotdash"
     compileSdk {
@@ -32,10 +45,10 @@ android {
     }
     buildTypes {
         debug {
-            buildConfigField("Int", "VK_REWARDED_SLOT_ID", "0")
+            buildConfigField("int", "VK_REWARDED_SLOT_ID", vkRewardedSlotId)
         }
         release {
-            buildConfigField("Int", "VK_REWARDED_SLOT_ID", "0")
+            buildConfigField("int", "VK_REWARDED_SLOT_ID", vkRewardedSlotId)
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -73,5 +86,5 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation("androidx.datastore:datastore-preferences:1.2.1")
     implementation("androidx.datastore:datastore-preferences-core:1.2.1")
-    implementation("com.my.target:mytarget-sdk:5.27.0")
+    implementation("com.my.target:mytarget-sdk:5.47.1")
 }

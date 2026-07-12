@@ -8,6 +8,7 @@ import com.alonso.dotdash.domain.repository.StatisticsRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 private const val DAILY_GOAL = 20
 private const val DAILY_FREE_HINTS = 3
@@ -16,7 +17,7 @@ private const val MILLIS = 5000L
 
 class HomeViewModel(
     repository: StatisticsRepository,
-    hintAllowanceDataStore: HintAllowanceDataStore
+    private val hintAllowanceDataStore: HintAllowanceDataStore
 ) : ViewModel() {
     val statistics = repository.getStatistics().stateIn(
         scope = viewModelScope,
@@ -40,4 +41,10 @@ class HomeViewModel(
             started = SharingStarted.WhileSubscribed(MILLIS),
             initialValue = DAILY_FREE_HINTS
         )
+
+    fun addRewardedHints(amount: Int = DAILY_FREE_HINTS) {
+        viewModelScope.launch {
+            hintAllowanceDataStore.addRewardedHints(amount)
+        }
+    }
 }
