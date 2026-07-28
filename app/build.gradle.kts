@@ -17,6 +17,10 @@ val vkRewardedSlotId = localProperties
     .getProperty("VK_REWARDED_SLOT_ID")
     ?.takeIf { it.isNotBlank() }
     ?: "0"
+val vkBannerSlotId = localProperties
+    .getProperty("VK_BANNER_SLOT_ID")
+    ?.takeIf { it.isNotBlank() }
+    ?: "0"
 android {
     namespace = "com.alonso.dotdash"
     compileSdk {
@@ -46,9 +50,11 @@ android {
     buildTypes {
         debug {
             buildConfigField("int", "VK_REWARDED_SLOT_ID", vkRewardedSlotId)
+            buildConfigField("int", "VK_BANNER_SLOT_ID", vkBannerSlotId)
         }
         release {
             buildConfigField("int", "VK_REWARDED_SLOT_ID", vkRewardedSlotId)
+            buildConfigField("int", "VK_BANNER_SLOT_ID", vkBannerSlotId)
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

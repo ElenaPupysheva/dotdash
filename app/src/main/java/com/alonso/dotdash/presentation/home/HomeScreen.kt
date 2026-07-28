@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -32,10 +34,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,13 +55,16 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
+import com.alonso.dotdash.BuildConfig
 import com.alonso.dotdash.R
 import com.alonso.dotdash.core.ads.RewardedHintsAd
 import com.alonso.dotdash.core.common.findActivity
 import com.alonso.dotdash.core.navigation.Screen
 import com.alonso.dotdash.ui.theme.NavTextActiveLight
 import com.alonso.dotdash.ui.theme.SuccessGreen
+import com.my.target.ads.MyTargetView
 
 private data class HomeMenuItemUi(
     val title: String,
@@ -81,6 +91,8 @@ fun HomeScreen(
     val rewardedHintsAd = remember(activity) {
         activity?.let(::RewardedHintsAd)
     }
+    var showRewardedHintsDialog by rememberSaveable { mutableStateOf(false) }
+    var adUnavailable by rememberSaveable { mutableStateOf(false) }
 
     val menuItems = listOf(
         HomeMenuItemUi(
@@ -160,10 +172,8 @@ fun HomeScreen(
                     navController.navigate(Screen.BufferScreen.route)
                 },
                 onHintsClick = {
-                    rewardedHintsAd?.loadAndShow(
-                        onReward = viewModel::addRewardedHints,
-                        onUnavailable = { }
-                    )
+                    adUnavailable = false
+                    showRewardedHintsDialog = true
                 }
             )
 
@@ -207,8 +217,66 @@ fun HomeScreen(
                     )
                 }
             }
+            HomeBannerAd(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 14.dp)
+            )
             Spacer(modifier = Modifier.height(16.dp))
         }
+    }
+
+    if (showRewardedHintsDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showRewardedHintsDialog = false
+                adUnavailable = false
+            },
+            title = {
+                Text(stringResource(R.string.no_hints_title))
+            },
+            text = {
+                Text(
+                    if (adUnavailable) {
+                        stringResource(R.string.ad_unavailable_message)
+                    } else {
+                        stringResource(R.string.rewarded_hints_message)
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        adUnavailable = false
+                        if (rewardedHintsAd == null) {
+                            adUnavailable = true
+                        } else {
+                            rewardedHintsAd.loadAndShow(
+                                onReward = {
+                                    showRewardedHintsDialog = false
+                                    viewModel.addRewardedHints()
+                                },
+                                onUnavailable = {
+                                    adUnavailable = true
+                                }
+                            )
+                        }
+                    }
+                ) {
+                    Text(stringResource(R.string.watch_ad_for_hints))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showRewardedHintsDialog = false
+                        adUnavailable = false
+                    }
+                ) {
+                    Text(stringResource(R.string.later))
+                }
+            }
+        )
     }
 }
 
@@ -367,6 +435,46 @@ private fun HintCounterBadge(
 }
 
 @Composable
+private fun HomeBannerAd(
+    modifier: Modifier = Modifier
+) {
+    val slotId = BuildConfig.VK_BANNER_SLOT_ID
+    if (slotId <= 0) return
+
+    val context = LocalContext.current
+
+    BoxWithConstraints(modifier = modifier) {
+        val bannerWidthDp = maxWidth.value.toInt().coerceAtLeast(1)
+        val bannerView = remember(context, slotId, bannerWidthDp) {
+            MyTargetView(context).apply {
+                setSlotId(slotId)
+                setAdSize(
+                    MyTargetView.AdSize.getAdSizeForCurrentOrientation(
+                        bannerWidthDp,
+                        50,
+                        context
+                    )
+                )
+                load()
+            }
+        }
+
+        DisposableEffect(bannerView) {
+            onDispose {
+                bannerView.destroy()
+            }
+        }
+
+        AndroidView(
+            factory = { bannerView },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
+        )
+    }
+}
+
+@Composable
 private fun HomeStatCard(
     value: String,
     label: String,
@@ -379,15 +487,17 @@ private fun HomeStatCard(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         modifier = modifier
+
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 14.dp, vertical = 16.dp)
+
         ) {
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
