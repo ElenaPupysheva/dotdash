@@ -65,6 +65,13 @@ import com.alonso.dotdash.core.navigation.Screen
 import com.alonso.dotdash.ui.theme.NavTextActiveLight
 import com.alonso.dotdash.ui.theme.SuccessGreen
 import com.my.target.ads.MyTargetView
+import com.my.target.common.models.IAdLoadingError
+import com.yandex.mobile.ads.banner.BannerAdEventListener
+import com.yandex.mobile.ads.banner.BannerAdSize
+import com.yandex.mobile.ads.banner.BannerAdView
+import com.yandex.mobile.ads.common.AdRequest
+import com.yandex.mobile.ads.common.AdRequestError
+import com.yandex.mobile.ads.common.ImpressionData
 
 private data class HomeMenuItemUi(
     val title: String,
@@ -438,39 +445,93 @@ private fun HintCounterBadge(
 private fun HomeBannerAd(
     modifier: Modifier = Modifier
 ) {
-    val slotId = BuildConfig.VK_BANNER_SLOT_ID
-    if (slotId <= 0) return
-
     val context = LocalContext.current
+    val activity = context.findActivity() ?: return
+    val vkSlotId = BuildConfig.VK_BANNER_SLOT_ID
+    val yandexAdUnitId = BuildConfig.YANDEX_BANNER_AD_UNIT_ID
+    var useYandex by remember(vkSlotId, yandexAdUnitId) {
+        mutableStateOf(vkSlotId <= 0)
+    }
+
+    if (vkSlotId <= 0 && yandexAdUnitId.isBlank()) return
 
     BoxWithConstraints(modifier = modifier) {
         val bannerWidthDp = maxWidth.value.toInt().coerceAtLeast(1)
-        val bannerView = remember(context, slotId, bannerWidthDp) {
-            MyTargetView(context).apply {
-                setSlotId(slotId)
-                setAdSize(
-                    MyTargetView.AdSize.getAdSizeForCurrentOrientation(
-                        bannerWidthDp,
-                        50,
-                        context
+        if (useYandex && yandexAdUnitId.isNotBlank()) {
+            val bannerView = remember(activity, yandexAdUnitId, bannerWidthDp) {
+                BannerAdView(activity).apply {
+                    setAdSize(BannerAdSize.sticky(activity, bannerWidthDp))
+                    setBannerAdEventListener(
+                        object : BannerAdEventListener {
+                            override fun onAdLoaded() = Unit
+
+                            override fun onAdFailedToLoad(error: AdRequestError) = Unit
+
+                            override fun onAdClicked() = Unit
+
+                            override fun onImpression(data: ImpressionData?) = Unit
+                        }
                     )
-                )
-                load()
+                    loadAd(AdRequest.Builder(yandexAdUnitId).build())
+                }
             }
-        }
 
-        DisposableEffect(bannerView) {
-            onDispose {
-                bannerView.destroy()
+            DisposableEffect(bannerView) {
+                onDispose {
+                    bannerView.destroy()
+                }
             }
-        }
 
-        AndroidView(
-            factory = { bannerView },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(50.dp)
-        )
+            AndroidView(
+                factory = { bannerView },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            )
+        } else if (!useYandex) {
+            val bannerView = remember(context, vkSlotId, bannerWidthDp) {
+                MyTargetView(context).apply {
+                    setSlotId(vkSlotId)
+                    setAdSize(
+                        MyTargetView.AdSize.getAdSizeForCurrentOrientation(
+                            bannerWidthDp,
+                            50,
+                            context
+                        )
+                    )
+                    setListener(
+                        object : MyTargetView.MyTargetViewListener {
+                            override fun onLoad(view: MyTargetView) = Unit
+
+                            override fun onNoAd(
+                                error: IAdLoadingError,
+                                view: MyTargetView
+                            ) {
+                                useYandex = true
+                            }
+
+                            override fun onShow(view: MyTargetView) = Unit
+
+                            override fun onClick(view: MyTargetView) = Unit
+                        }
+                    )
+                    load()
+                }
+            }
+
+            DisposableEffect(bannerView) {
+                onDispose {
+                    bannerView.destroy()
+                }
+            }
+
+            AndroidView(
+                factory = { bannerView },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            )
+        }
     }
 }
 

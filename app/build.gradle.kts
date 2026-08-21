@@ -21,6 +21,18 @@ val vkBannerSlotId = localProperties
     .getProperty("VK_BANNER_SLOT_ID")
     ?.takeIf { it.isNotBlank() }
     ?: "0"
+val yandexRewardedAdUnitId = localProperties
+    .getProperty("YANDEX_REWARDED_AD_UNIT_ID")
+    ?.takeIf { it.isNotBlank() }
+    ?: ""
+val yandexBannerAdUnitId = localProperties
+    .getProperty("YANDEX_BANNER_AD_UNIT_ID")
+    ?.takeIf { it.isNotBlank() }
+    ?: ""
+
+fun String.asBuildConfigString(): String =
+    "\"${replace("\\", "\\\\").replace("\"", "\\\"")}\""
+
 android {
     namespace = "com.alonso.dotdash"
     compileSdk {
@@ -51,10 +63,34 @@ android {
         debug {
             buildConfigField("int", "VK_REWARDED_SLOT_ID", vkRewardedSlotId)
             buildConfigField("int", "VK_BANNER_SLOT_ID", vkBannerSlotId)
+            buildConfigField(
+                "String",
+                "YANDEX_REWARDED_AD_UNIT_ID",
+                yandexRewardedAdUnitId
+                    .ifBlank { "demo-rewarded-yandex" }
+                    .asBuildConfigString()
+            )
+            buildConfigField(
+                "String",
+                "YANDEX_BANNER_AD_UNIT_ID",
+                yandexBannerAdUnitId
+                    .ifBlank { "demo-banner-yandex" }
+                    .asBuildConfigString()
+            )
         }
         release {
             buildConfigField("int", "VK_REWARDED_SLOT_ID", vkRewardedSlotId)
             buildConfigField("int", "VK_BANNER_SLOT_ID", vkBannerSlotId)
+            buildConfigField(
+                "String",
+                "YANDEX_REWARDED_AD_UNIT_ID",
+                yandexRewardedAdUnitId.asBuildConfigString()
+            )
+            buildConfigField(
+                "String",
+                "YANDEX_BANNER_AD_UNIT_ID",
+                yandexBannerAdUnitId.asBuildConfigString()
+            )
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -93,4 +129,5 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.2.1")
     implementation("androidx.datastore:datastore-preferences-core:1.2.1")
     implementation("com.my.target:mytarget-sdk:5.47.1")
+    implementation("com.yandex.android:mobileads:8.3.0")
 }
