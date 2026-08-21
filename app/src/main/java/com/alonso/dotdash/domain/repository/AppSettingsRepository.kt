@@ -8,4 +8,5 @@ interface AppSettingsRepository {
     suspend fun setVibrationEnabled(enabled: Boolean)
     suspend fun setTrainingReminderEnabled(enabled: Boolean)
     suspend fun setLastOpenedEpochDay(day: Long)
+    suspend fun setToneFrequencyHz(frequencyHz: Int)
 }

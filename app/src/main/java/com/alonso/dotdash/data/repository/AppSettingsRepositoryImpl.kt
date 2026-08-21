@@ -24,4 +24,8 @@ class AppSettingsRepositoryImpl(
     override suspend fun setLastOpenedEpochDay(day: Long) {
         dataStore.setLastOpenedEpochDay(day)
     }
+
+    override suspend fun setToneFrequencyHz(frequencyHz: Int) {
+        dataStore.setToneFrequencyHz(frequencyHz)
+    }
 }

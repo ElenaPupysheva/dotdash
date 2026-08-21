@@ -128,6 +128,6 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation("androidx.datastore:datastore-preferences:1.2.1")
     implementation("androidx.datastore:datastore-preferences-core:1.2.1")
-    implementation("com.my.target:mytarget-sdk:5.47.1")
+    implementation("com.my.target:mytarget-sdk:5.51.2")
     implementation("com.yandex.android:mobileads:8.3.0")
 }

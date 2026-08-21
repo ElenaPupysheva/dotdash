@@ -77,4 +77,8 @@
     <string name="clear">Clear</string>
     <string name="your_text">Your text</string>
     <string name="free_writing">Free writing</string>
+    <string name="tone_frequency">Tone frequency</string>
+    <string name="tone_frequency_value">%1$d Hz</string>
+    <string name="tone_frequency_description">Adjust the pitch of Morse code playback</string>
+    <string name="preview_tone">Preview tone</string>
 </resources>
