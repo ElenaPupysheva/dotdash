@@ -77,4 +77,8 @@
     <string name="your_text">Ваш текст</string>
     <string name="free_writing">Свободное письмо</string>
     <string name="greetings_training">Приветствия</string>
+    <string name="tone_frequency">Частота тона</string>
+    <string name="tone_frequency_value">%1$d Гц</string>
+    <string name="tone_frequency_description">Высота звука при воспроизведении Морзе</string>
+    <string name="preview_tone">Прослушать тон</string>
 </resources>

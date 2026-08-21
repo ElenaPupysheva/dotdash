@@ -7,7 +7,6 @@ import kotlin.math.PI
 import kotlin.math.sin
 
 private const val SAMPLE_RATE = 44_100
-private const val TONE_FREQUENCY_HZ = 650.0
 private const val TONE_VOLUME = 0.55
 private const val FADE_MS = 8L
 
@@ -132,7 +131,7 @@ class ToneBeepPlayer : SoundPlayer {
         sampleIndex: Int,
         envelope: Double = 1.0
     ): Short {
-        val angle = 2.0 * PI * TONE_FREQUENCY_HZ * sampleIndex / SAMPLE_RATE
+        val angle = 2.0 * PI * ToneFrequency.valueHz * sampleIndex / SAMPLE_RATE
         val value = sin(angle) * Short.MAX_VALUE * TONE_VOLUME * envelope
         return value.toInt().toShort()
     }

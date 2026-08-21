@@ -6,6 +6,7 @@ import com.alonso.dotdash.data.local.AppSettings
 import com.alonso.dotdash.domain.model.Statistics
 import com.alonso.dotdash.domain.repository.AppSettingsRepository
 import com.alonso.dotdash.domain.repository.StatisticsRepository
+import com.alonso.dotdash.core.common.ToneFrequency
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -58,6 +59,13 @@ class SettingsViewModel(
     fun updateTrainingReminderEnabled(enabled: Boolean) {
         viewModelScope.launch {
             appSettingsRepository.setTrainingReminderEnabled(enabled)
+        }
+    }
+
+    fun updateToneFrequencyHz(frequencyHz: Int) {
+        ToneFrequency.update(frequencyHz)
+        viewModelScope.launch {
+            appSettingsRepository.setToneFrequencyHz(frequencyHz)
         }
     }
 }

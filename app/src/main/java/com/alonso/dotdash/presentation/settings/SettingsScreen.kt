@@ -6,6 +6,7 @@ import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -16,8 +17,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -26,6 +29,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Vibration
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +38,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
@@ -43,19 +48,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.Role
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.alonso.dotdash.R
+import com.alonso.dotdash.core.common.MAX_TONE_FREQUENCY_HZ
+import com.alonso.dotdash.core.common.MIN_TONE_FREQUENCY_HZ
+import com.alonso.dotdash.core.common.TONE_FREQUENCY_STEP_HZ
+import com.alonso.dotdash.core.common.ToneBeepPlayer
+import com.alonso.dotdash.core.common.ToneFrequency
 import com.alonso.dotdash.core.notification.cancelReminderWork
 import com.alonso.dotdash.core.notification.scheduleReminderWork
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -145,6 +160,7 @@ fun SettingsScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 20.dp, vertical = 8.dp)
                 .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
         ) {
             SettingsSectionTitle(title = stringResource(R.string.appearance))
             SettingsGroupCard {
@@ -171,6 +187,11 @@ fun SettingsScreen(
                     icon = Icons.Filled.Vibration,
                     checked = appSettings.vibrationEnabled,
                     onCheckedChange = viewModel::updateVibrationEnabled
+                )
+                SettingsDivider()
+                SettingsToneFrequencyRow(
+                    frequencyHz = appSettings.toneFrequencyHz,
+                    onFrequencyChange = viewModel::updateToneFrequencyHz
                 )
                 SettingsDivider()
                 SettingsGoalRow(
@@ -217,6 +238,87 @@ fun SettingsScreen(
 }
 
 @Composable
+private fun SettingsToneFrequencyRow(
+    frequencyHz: Int,
+    onFrequencyChange: (Int) -> Unit
+) {
+    var sliderValue by remember(frequencyHz) {
+        mutableFloatStateOf(frequencyHz.toFloat())
+    }
+    val tonePlayer = remember { ToneBeepPlayer() }
+
+    DisposableEffect(tonePlayer) {
+        onDispose(tonePlayer::release)
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.Top
+    ) {
+        SettingsLeadingIcon(icon = Icons.Filled.VolumeUp)
+
+        Spacer(modifier = Modifier.size(14.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.tone_frequency),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.tone_frequency_value,
+                            sliderValue.roundToInt()
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                IconButton(onClick = tonePlayer::shortBeep) {
+                    Icon(
+                        imageVector = Icons.Filled.VolumeUp,
+                        contentDescription = stringResource(R.string.preview_tone),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+
+            Text(
+                text = stringResource(R.string.tone_frequency_description),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Slider(
+                value = sliderValue,
+                onValueChange = { value ->
+                    val steppedValue =
+                        (value / TONE_FREQUENCY_STEP_HZ).roundToInt() *
+                            TONE_FREQUENCY_STEP_HZ
+                    sliderValue = steppedValue.toFloat()
+                    ToneFrequency.update(steppedValue)
+                },
+                onValueChangeFinished = {
+                    onFrequencyChange(sliderValue.roundToInt())
+                },
+                valueRange = MIN_TONE_FREQUENCY_HZ.toFloat()..
+                    MAX_TONE_FREQUENCY_HZ.toFloat(),
+                steps = (MAX_TONE_FREQUENCY_HZ - MIN_TONE_FREQUENCY_HZ) /
+                    TONE_FREQUENCY_STEP_HZ - 1
+            )
+        }
+    }
+}
+
+@Composable
 private fun SettingsSectionTitle(
     title: String
 ) {
@@ -258,6 +360,11 @@ private fun SettingsSwitchRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .toggleable(
+                value = checked,
+                role = Role.Switch,
+                onValueChange = onCheckedChange
+            )
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -283,9 +390,11 @@ private fun SettingsSwitchRow(
             )
         }
 
+        Spacer(modifier = Modifier.size(12.dp))
+
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = null,
             colors = SwitchDefaults.colors(
                 checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                 checkedTrackColor = MaterialTheme.colorScheme.primary,
